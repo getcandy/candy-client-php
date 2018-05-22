@@ -3,6 +3,7 @@
 namespace GetCandy\Client;
 
 use Illuminate\Support\ServiceProvider;
+use GetCandy\Client\Facades\CandyClient;
 
 class GetCandyServiceProvider extends ServiceProvider
 {
@@ -13,8 +14,7 @@ class GetCandyServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        $this->registerHelpers();
-        $this->app->singleton('getcandy', function ($app) {
+        $this->app->singleton(CandyClient::class, function ($app) {
             return new Candy();
         });
     }

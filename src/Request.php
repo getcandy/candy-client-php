@@ -10,19 +10,18 @@ class Request
     protected $method = 'get';
     protected $data;
     protected $response;
+    protected $decorator = null;
 
-    public function __construct($endPoint, $method, $data)
+    public function __construct($endPoint, $method, $data = [])
     {
-
-        if (parse_url($endPoint, PHP_URL_QUERY)) {
-            $endPoint .= '&channel='. env('APP_CHANNEL', 'get-candy');
-        }else{
-            $endPoint .= '?channel='. env('APP_CHANNEL', 'get-candy');
-        }
-
         $this->endPoint = $endPoint;
         $this->method = $method;
         $this->data = $data;
+    }
+
+    public function setDecorator($decorator)
+    {
+        $this->decorator = $decorator;
     }
 
     public function getEndPoint()

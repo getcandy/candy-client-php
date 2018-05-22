@@ -2,17 +2,18 @@
 
 namespace GetCandy\Client;
 
-use Carbon\Carbon;
+use Cache;
 use Config;
-use GuzzleHttp\Client;
-use GuzzleHttp\Handler\CurlHandler;
-use GuzzleHttp\HandlerStack;
-use GuzzleHttp\Middleware;
+use CandyClient;
+use Carbon\Carbon;
 use GuzzleHttp\Pool;
-use GuzzleHttp\Promise;
-use GuzzleHttp\Psr7\Request;
 use Mockery\Exception;
-use Session;
+use GuzzleHttp\Client;
+use GuzzleHttp\Promise;
+use GuzzleHttp\Middleware;
+use GuzzleHttp\HandlerStack;
+use GuzzleHttp\Psr7\Request;
+use GuzzleHttp\Handler\CurlHandler;
 
 class BatchRequestService
 {
@@ -42,7 +43,7 @@ class BatchRequestService
             }
         }
 
-        $client = new Client(['base_uri' => Config::get('services.ecommerce_api.baseURL')]);
+        $client = new Client(['base_uri' => CandyClient::getUrl()]);
         $promises = [];
         $headers = [
             'Authorization' => 'Bearer ' . $this->getToken($force),
@@ -62,7 +63,6 @@ class BatchRequestService
                     $options['form_params'] = $request->getData();
                 }
             }
-
             $promises[(string) $request] = $client->requestAsync($request->getMethod(), $request->getEndPoint(), $options);
         }
 
@@ -94,34 +94,16 @@ class BatchRequestService
 
     public function getToken($force = false)
     {
-        $dateTime = Carbon::now();
-        $apiDateTime = Session::get('api_token_expiry', Carbon::now());
-
-        // If token has not expired and has longer that 10 mins keep it
-        if ($apiDateTime->copy()->subMinutes(20)->gt($dateTime) && !$force) {
-            return Session::get('api_token');
-        }
-
-        // Do we need to refresh users token or get a new client token
-        if (Session::get('api_refresh_token', false) && $apiDateTime->gte($dateTime)) {
-            $token = $this->getRefreshToken(Session::get('api_refresh_token'));
-        } else {
-            $token = $this->getClientToken();
-        }
-
-        return $token->access_token;
+        return $this->getClientToken();
     }
 
     private function getRefreshToken($refreshToken)
     {
         $dateTime = Carbon::now();
 
-        // Forget Sessions
-        $this->resetSessions();
-
         $params = [
-            'client_id'     => Config::get('services.ecommerce_api.client_id'),
-            'client_secret' => Config::get('services.ecommerce_api.client_secret'),
+            'client_id'     => CandyClient::getClientId(),
+            'client_secret' => CandyClient::getClientSecret(),
             'scope'         => '',
             'refresh_token' => $refreshToken,
             'grant_type'    => 'refresh_token'
@@ -137,41 +119,28 @@ class BatchRequestService
             return $this->getClientToken();
         }
 
-        // Set Sessions
-        Session::put('api_token_expiry', $dateTime->addSeconds($response->expires_in));
-        Session::put('api_token', $response->access_token);
-        Session::put('api_refresh_token', $response->refresh_token);
-        Session::put('logged_in', true);
-
         return $response;
     }
 
     private function getClientToken()
     {
-        $dateTime = Carbon::now();
-
-        // Forget Sessions
-        $this->resetSessions();
-
-        $params = [
-            'client_id'     => Config::get('services.ecommerce_api.client_id'),
-            'client_secret' => Config::get('services.ecommerce_api.client_secret'),
-            'scope'         => '',
-            'grant_type'    => 'client_credentials'
-        ];
-        $response = $this->requestToken($params);
-
-        // Set Sessions
-        Session::put('api_token_expiry', $dateTime->addSeconds($response->expires_in));
-        Session::put('api_token', $response->access_token);
-
-        return $response;
+        if (!Cache::has('client_token')) {
+            $params = [
+                'client_id' => CandyClient::getClientId(),
+                'client_secret' => CandyClient::getClientSecret(),
+                'scope' => '',
+                'grant_type' => 'client_credentials'
+            ];
+            $response = $this->requestToken($params);
+            Cache::put('client_token', $response->access_token, ($response->expires_in / 60));
+        }
+        return Cache::get('client_token');
     }
 
     private function requestToken($params)
     {
         $client = new Client([
-            'base_uri' => Config::get('services.ecommerce_api.baseURL')
+            'base_uri' => CandyClient::getUri()
         ]);
 
         $response = $client->post('oauth/token', [
@@ -181,13 +150,4 @@ class BatchRequestService
 
         return json_decode((string) $response->getBody());
     }
-
-    private function resetSessions()
-    {
-        Session::forget('api_token_expiry');
-        Session::forget('api_token');
-        Session::forget('api_refresh_token');
-        Session::forget('logged_in');
-    }
-
 }

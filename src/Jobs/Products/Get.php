@@ -8,23 +8,7 @@ use Session;
 
 class Get extends AbstractJob
 {
-    protected function setup()
-    {
-        $action = 'api/v1/products';
-
-        if (is_string($this->params)) {
-            $action .= '/' . $this->params;
-        }
-
-        if (Session::has('excl_tax')) {
-            if (parse_url($action, PHP_URL_QUERY)) {
-                $action .= '&excl_tax='. boolVal(Session::get('excl_tax'));
-            }else{
-                $action .= '?excl_tax='. boolVal(Session::get('excl_tax'));
-            }
-        }
-
-        $this->addRequest('products-get', new Request($action, 'GET', []));
-
-    }
+    protected $endpoint = 'products';
+    protected $method = 'GET';
+    protected $handle = 'products-get';
 }

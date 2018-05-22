@@ -7,19 +7,57 @@ use Closure;
 class Candy
 {
     protected $callChain = [];
-    protected $params;
     protected $returnJob = false;
     protected $job;
 
+    protected $params;
+    protected $url;
+    protected $clientId;
+    protected $clientSecret;
+    protected $channel = 'webstore';
+    protected $locale = 'en';
+    /**
+     * Sets up the client
+     *
+     * @param string $url
+     * @param array $config
+     * @return void
+     */
+    public function init($url, array $config = [])
+    {
+        $this->url = $url;
+        $this->clientSecret = $config['client_secret'] ?? null;
+        $this->clientId = $config['client_id'] ?? null;
+        $this->locale = $config['locale'] ?? $this->locale;
+        $this->channel = $config['channel'] ?? $this->channel;
+    }
+
+    public function getUrl($endpoint = null)
+    {
+        return $this->url . '/api/v1/' . $endpoint;
+    }
+
+    public function getUri()
+    {
+        return $this->url;
+    }
+
+    public function getClientSecret()
+    {
+        return $this->clientSecret;
+    }
+
+    public function getClientId()
+    {
+        return $this->clientId;
+    }
+
     public function __call($name, $arguments)
     {
+        $this->callChain[] = ucfirst($name);
 
-        $this->callChain[] = $name;
-
-        if (count($arguments) == 1) {
-            $this->params = $arguments[0];
-        } elseif (count($arguments)) {
-            $this->params = $arguments;
+        if (!empty($arguments)) {
+            $this->addParams($arguments);
         }
 
         if ($this->canRun()) {
@@ -31,6 +69,17 @@ class Candy
         }
 
         return $this;
+    }
+
+    protected function addParams($params)
+    {
+        if (is_string($params[0])) {
+            $this->params['id'] = $params[0];
+        } else {
+            foreach ($params[0] as $key => $value) {
+                $this->params[$key] = $value;
+            }
+        }
     }
 
     public function job()
@@ -49,7 +98,6 @@ class Candy
     public function getJob()
     {
         $jobClass = $this->getClassFromChain();
-
         $this->job = new $jobClass($this->params);
 
         $this->reset();
@@ -60,9 +108,7 @@ class Candy
     public function execute()
     {
         $job = $this->getJob();
-
         $batch = new BatchRequestService();
-
         $batch->add($job);
         $batch->execute();
 
@@ -91,7 +137,6 @@ class Candy
     public function reset()
     {
         $this->callChain = [];
-        $this->params = [];
         $this->returnJob = false;
     }
 
