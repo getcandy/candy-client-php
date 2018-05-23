@@ -42,6 +42,16 @@ class Candy
         return $this->url;
     }
 
+    public function getChannel()
+    {
+        return $this->channel;
+    }
+
+    public function getLocale()
+    {
+        return $this->locale;
+    }
+
     public function getClientSecret()
     {
         return $this->clientSecret;
@@ -73,7 +83,7 @@ class Candy
 
     protected function addParams($params)
     {
-        if (is_string($params[0])) {
+        if (!is_array($params[0])) {
             $this->params['id'] = $params[0];
         } else {
             foreach ($params[0] as $key => $value) {

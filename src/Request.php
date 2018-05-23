@@ -2,7 +2,8 @@
 
 namespace GetCandy\Client;
 
-use Session;
+use GetCandy\Client\Responses\ErrorResponse;
+use GetCandy\Client\Responses\SuccessResponse;
 
 class Request
 {
@@ -59,9 +60,13 @@ class Request
         return $this->response;
     }
 
-    public function setResponse($response)
+    public function setResponse($response, $failed = false)
     {
-        $this->response = $response;
+        if ($failed) {
+            $this->response = new ErrorResponse($response);
+        } else {
+            $this->response = new SuccessResponse($response);
+        }
     }
 
     public function __toString()

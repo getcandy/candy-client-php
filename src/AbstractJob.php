@@ -70,13 +70,12 @@ abstract class AbstractJob implements JobInterface
         return $this->requests[$key];
     }
 
-    public function addResult($requestHash, $response)
+    public function addResult($requestHash, $response, $failed = false)
     {
         foreach ($this->requests as $index => $request) {
             $thisRequestHash = (string) $request;
-
             if ($thisRequestHash == $requestHash) {
-                $this->requests[$index]->setResponse($response);
+                $this->requests[$index]->setResponse($response, $failed);
             }
         }
     }

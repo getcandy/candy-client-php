@@ -14,6 +14,8 @@ use GuzzleHttp\Middleware;
 use GuzzleHttp\HandlerStack;
 use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\Handler\CurlHandler;
+use GuzzleHttp\Exception\ClientException;
+use GetCandy\Client\Exceptions\ClientCredentialsException;
 
 class BatchRequestService
 {
@@ -67,24 +69,32 @@ class BatchRequestService
         }
 
         // Wait on all of the requests to complete. Throws a ConnectException if any of the requests fail
-        try {
-            $results = Promise\unwrap($promises);
-        } catch (\Exception $e) {
-            if ($e->getCode() == 401) {
-                return $this->execute(true);
-            } else {
-                throw($e);
-            }
-        }
+        $results = Promise\settle($promises)->wait();
+        // try {
+
+        // } catch (ClientException $e) {
+        //     if ($e->getCode() == 401) {
+        //         return $this->execute(true);
+        //     } else {
+        //         $results = $e->getResponse();
+        //     }
+        // }
 
         foreach ($promises as $index => $promise) {
             $response = $results[$index];
 
-            $data = json_decode($response->getBody()->getContents(), true);
+            $failed = $response['state'] != 'fulfilled';
+
+            if ($failed) {
+                $contents = $response['reason']->getResponse()->getBody()->getContents();
+            } else {
+                $contents = $response['value']->getBody()->getContents();
+            }
+
+            $data = json_decode($contents, true);
 
             foreach ($this->jobs as $job) {
-                $job->addResult($index, $data);
-
+                $job->addResult($index, $data, $failed);
                 if ($job->canRun()) {
                     $job->run();
                 }
@@ -143,10 +153,16 @@ class BatchRequestService
             'base_uri' => CandyClient::getUri()
         ]);
 
-        $response = $client->post('oauth/token', [
-            'form_params' => $params,
-            'verify' => Config::get('services.ecommerce_api.verify'),
-        ]);
+        try {
+            $response = $client->post('oauth/token', [
+                'form_params' => $params,
+                'verify' => Config::get('services.ecommerce_api.verify'),
+            ]);
+        } catch (ClientException $e) {
+            $body = json_decode($e->getResponse()->getBody()->getContents());
+            throw new ClientCredentialsException($body->message);
+        }
+
 
         return json_decode((string) $response->getBody());
     }
