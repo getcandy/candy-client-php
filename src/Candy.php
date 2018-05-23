@@ -148,6 +148,7 @@ class Candy
     {
         $this->callChain = [];
         $this->returnJob = false;
+        $this->params = [];
     }
 
     private function getClassFromChain()

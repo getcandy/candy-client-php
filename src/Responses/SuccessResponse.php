@@ -8,21 +8,20 @@ class SuccessResponse extends AbstractResponse
 {
     public function __construct($response)
     {
-        $this->meta = $response['meta'];
-        $this->body = $this->normalize($response);
+        $this->meta = $this->normalize($response['meta']);
+        $this->body = $this->normalize($response['data']);
     }
 
     protected function normalize($response)
     {
         // If it's multidimensional, make it a collection.
-        $data = $response['data'];
 
-        if (isset($data[0]) && is_array($data[0])) {
+        if (isset($response[0]) && is_array($response[0])) {
             return $this->mapCollection(
-                collect($data)
+                collect($response)
             );
         }
-        return $this->mapItem($data);
+        return $this->mapItem($response);
     }
 
     /**
@@ -68,6 +67,8 @@ class SuccessResponse extends AbstractResponse
                     } else {
                         $value = $this->mapItem($value['data']);
                     }
+                } elseif (isset($value[0]) || !count($value)) {
+                    $value = $this->mapCollection($value);
                 }
             }
             $object->{$key} = $value;
