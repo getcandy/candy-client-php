@@ -3,19 +3,82 @@
 namespace GetCandy\Client\Responses;
 
 use CandyClient;
+use GuzzleHttp\Exception\ClientException;
 
-class SuccessResponse extends AbstractResponse
+class ApiResponse extends AbstractResponse
 {
+    protected $states = [
+        'rejected' => 0,
+        'fulfilled' => 1
+    ];
+
+    protected $response;
+
     public function __construct($response)
     {
-        $this->meta = $this->normalize($response['meta']);
-        $this->body = $this->normalize($response['data']);
+        $this->response = $response;
+        if (!$this->wasSuccessful()) {
+            $this->processErrorResponse();
+        } else {
+            $this->processSuccessResponse();
+        }
     }
 
+    /**
+     * Processes a failed request
+     *
+     * @return void
+     */
+    protected function processErrorResponse()
+    {
+        $reason = $this->response['reason'];
+
+        $this->failed = true;
+
+        if ($reason instanceof ClientException) {
+            $contents = json_decode($reason->getResponse()->getBody()->getContents(), true);
+            $this->body = $contents;
+            $this->status = $reason->getResponse()->getStatusCode();
+            $this->meta = $reason->getTrace();
+        } else {
+            $this->status = $response['error']['http_code'];
+            $this->body = $response['error']['message'];
+        }
+    }
+
+    /**
+     * Processes a successful request
+     *
+     * @return void
+     */
+    protected function processSuccessResponse()
+    {
+        $contents = json_decode($this->response['value']->getBody()->getContents(), true);
+        $this->meta = $this->normalize($contents['meta']);
+        $this->body = $this->normalize($contents['data']);
+    }
+
+    /**
+     * Determines whether the request was successful
+     *
+     * @return boolean
+     */
+    private function wasSuccessful()
+    {
+        return isset($this->states[$this->response['state']]) ?
+            (bool) $this->states[$this->response['state']] :
+            false;
+    }
+
+    /**
+     * Normalises our response data
+     *
+     * @param array $response
+     *
+     * @return mixed
+     */
     protected function normalize($response)
     {
-        // If it's multidimensional, make it a collection.
-
         if (isset($response[0]) && is_array($response[0])) {
             return $this->mapCollection(
                 collect($response)
@@ -76,6 +139,13 @@ class SuccessResponse extends AbstractResponse
         return $object;
     }
 
+    /**
+     * Gets mapped attrbutes based on locale/environment
+     *
+     * @param array $attributes
+     *
+     * @return mixed
+     */
     protected function getMappedAttributes($attributes)
     {
         $data = [];

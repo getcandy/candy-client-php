@@ -2,8 +2,7 @@
 
 namespace GetCandy\Client;
 
-use GetCandy\Client\Responses\ErrorResponse;
-use GetCandy\Client\Responses\SuccessResponse;
+use GetCandy\Client\Responses\ApiResponse;
 
 class Request
 {
@@ -62,11 +61,7 @@ class Request
 
     public function setResponse($response, $failed = false)
     {
-        if ($failed) {
-            $this->response = new ErrorResponse($response);
-        } else {
-            $this->response = new SuccessResponse($response);
-        }
+        $this->response = new ApiResponse($response);
     }
 
     public function __toString()

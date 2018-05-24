@@ -70,31 +70,11 @@ class BatchRequestService
 
         // Wait on all of the requests to complete. Throws a ConnectException if any of the requests fail
         $results = Promise\settle($promises)->wait();
-        // try {
-
-        // } catch (ClientException $e) {
-        //     if ($e->getCode() == 401) {
-        //         return $this->execute(true);
-        //     } else {
-        //         $results = $e->getResponse();
-        //     }
-        // }
 
         foreach ($promises as $index => $promise) {
             $response = $results[$index];
-
-            $failed = $response['state'] != 'fulfilled';
-
-            if ($failed) {
-                $contents = $response['reason']->getResponse()->getBody()->getContents();
-            } else {
-                $contents = $response['value']->getBody()->getContents();
-            }
-
-            $data = json_decode($contents, true);
-
             foreach ($this->jobs as $job) {
-                $job->addResult($index, $data, $failed);
+                $job->addResult($index, $response);
                 if ($job->canRun()) {
                     $job->run();
                 }
