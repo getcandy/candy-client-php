@@ -4,6 +4,7 @@ namespace GetCandy\Client\Responses;
 
 use CandyClient;
 use GuzzleHttp\Exception\ClientException;
+use GuzzleHttp\Exception\ServerException;
 
 class ApiResponse extends AbstractResponse
 {
@@ -16,7 +17,9 @@ class ApiResponse extends AbstractResponse
 
     public function __construct($response)
     {
+
         $this->response = $response;
+
         if (!$this->wasSuccessful()) {
             $this->processErrorResponse();
         } else {
@@ -35,11 +38,18 @@ class ApiResponse extends AbstractResponse
 
         $this->failed = true;
 
+
         if ($reason instanceof ClientException) {
             $contents = json_decode($reason->getResponse()->getBody()->getContents(), true);
             $this->body = $contents;
             $this->status = $reason->getResponse()->getStatusCode();
             $this->meta = $reason->getTrace();
+        } elseif ($reason instanceof ServerException) {
+            $contents = json_decode($reason->getResponse()->getBody()->getContents(), true);
+            $this->body = $contents;
+            $this->status = $reason->getResponse()->getStatusCode();
+            $this->meta = $reason->getTrace();
+
         } else {
             $this->status = $response['error']['http_code'];
             $this->body = $response['error']['message'];
@@ -54,6 +64,7 @@ class ApiResponse extends AbstractResponse
     protected function processSuccessResponse()
     {
         $contents = json_decode($this->response['value']->getBody()->getContents(), true);
+
         $this->meta = $this->normalize($contents['meta']);
         $this->body = $this->normalize($contents['data']);
     }
@@ -123,6 +134,7 @@ class ApiResponse extends AbstractResponse
                 }
                 continue;
             }
+
             if (is_array($value) || $value instanceof \Illuminate\Database\Eloquent\Collection) {
                 if (!empty($value['data'])) {
                     if (isset($value['data'][0])) {
@@ -132,6 +144,8 @@ class ApiResponse extends AbstractResponse
                     }
                 } elseif (isset($value[0]) || !count($value)) {
                     $value = $this->mapCollection($value);
+                } elseif (isset($value['data']) && !count($value['data'])) {
+                    $value = $this->mapCollection($value['data']);
                 }
             }
             $object->{$key} = $value;
