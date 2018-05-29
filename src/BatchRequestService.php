@@ -2,7 +2,6 @@
 
 namespace GetCandy\Client;
 
-use Cache;
 use Config;
 use CandyClient;
 use Carbon\Carbon;
@@ -15,7 +14,6 @@ use GuzzleHttp\HandlerStack;
 use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\Handler\CurlHandler;
 use GuzzleHttp\Exception\ClientException;
-use GetCandy\Client\Exceptions\ClientCredentialsException;
 
 class BatchRequestService
 {
@@ -47,8 +45,9 @@ class BatchRequestService
 
         $client = new Client(['base_uri' => CandyClient::getUrl()]);
         $promises = [];
+
         $headers = [
-            'Authorization' => 'Bearer ' . $this->getToken($force),
+            'Authorization' => 'Bearer ' . CandyClient::getToken($force),
             'Accept' => 'application/json'
         ];
 
@@ -80,70 +79,5 @@ class BatchRequestService
                 }
             }
         }
-    }
-
-    public function getToken($force = false)
-    {
-        return $this->getClientToken();
-    }
-
-    private function getRefreshToken($refreshToken)
-    {
-        $dateTime = Carbon::now();
-
-        $params = [
-            'client_id'     => CandyClient::getClientId(),
-            'client_secret' => CandyClient::getClientSecret(),
-            'scope'         => '',
-            'refresh_token' => $refreshToken,
-            'grant_type'    => 'refresh_token'
-        ];
-        $response = $this->requestToken($params);
-
-        // So if we don't get an access token back then try get a client token
-        if (isset($response->access_token)) {
-            Session::forget('logged_in');
-            Session::forget('user');
-            Session::forget('refresh_token');
-
-            return $this->getClientToken();
-        }
-
-        return $response;
-    }
-
-    private function getClientToken()
-    {
-        if (!Cache::has('client_token')) {
-            $params = [
-                'client_id' => CandyClient::getClientId(),
-                'client_secret' => CandyClient::getClientSecret(),
-                'scope' => '',
-                'grant_type' => 'client_credentials'
-            ];
-            $response = $this->requestToken($params);
-            Cache::put('client_token', $response->access_token, ($response->expires_in / 60));
-        }
-        return Cache::get('client_token');
-    }
-
-    private function requestToken($params)
-    {
-        $client = new Client([
-            'base_uri' => CandyClient::getUri()
-        ]);
-
-        try {
-            $response = $client->post('oauth/token', [
-                'form_params' => $params,
-                'verify' => Config::get('services.ecommerce_api.verify'),
-            ]);
-        } catch (ClientException $e) {
-            $body = json_decode($e->getResponse()->getBody()->getContents());
-            throw new ClientCredentialsException($body->message);
-        }
-
-
-        return json_decode((string) $response->getBody());
     }
 }

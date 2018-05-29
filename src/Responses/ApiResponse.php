@@ -5,6 +5,7 @@ namespace GetCandy\Client\Responses;
 use CandyClient;
 use GuzzleHttp\Exception\ClientException;
 use GuzzleHttp\Exception\ServerException;
+use GuzzleHttp\Psr7\Response;
 
 class ApiResponse extends AbstractResponse
 {
@@ -34,10 +35,13 @@ class ApiResponse extends AbstractResponse
      */
     protected function processErrorResponse()
     {
-        $reason = $this->response['reason'];
+        if ($this->response instanceof Response) {
+            $reason = $this->response;
+        } else {
+            $reason = $this->response['reason'];
+        }
 
         $this->failed = true;
-
 
         if ($reason instanceof ClientException) {
             $contents = json_decode($reason->getResponse()->getBody()->getContents(), true);
@@ -49,7 +53,9 @@ class ApiResponse extends AbstractResponse
             $this->body = $contents;
             $this->status = $reason->getResponse()->getStatusCode();
             $this->meta = $reason->getTrace();
-
+        } elseif ($reason instanceof Response) {
+            $this->body =json_decode($reason->getBody()->getContents(), true);
+            $this->status = $reason->getStatusCode();
         } else {
             $this->status = $response['error']['http_code'];
             $this->body = $response['error']['message'];
@@ -63,10 +69,13 @@ class ApiResponse extends AbstractResponse
      */
     protected function processSuccessResponse()
     {
-        $contents = json_decode($this->response['value']->getBody()->getContents(), true);
-
-        $this->meta = $this->normalize($contents['meta']);
-        $this->body = $this->normalize($contents['data']);
+        if ($this->response instanceof Response) {
+            $this->body = $this->normalize(json_decode($this->response->getBody()->getContents(), true));
+        } else {
+            $contents = json_decode($this->response['value']->getBody()->getContents(), true);
+            $this->meta = $this->normalize($contents['meta']);
+            $this->body = $this->normalize($contents['data']);
+        }
     }
 
     /**
@@ -76,6 +85,9 @@ class ApiResponse extends AbstractResponse
      */
     private function wasSuccessful()
     {
+        if ($this->response instanceof Response) {
+            return $this->response->getStatusCode() == 200;
+        }
         return isset($this->states[$this->response['state']]) ?
             (bool) $this->states[$this->response['state']] :
             false;
