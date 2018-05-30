@@ -3,8 +3,9 @@
 namespace GetCandy\Client\Responses;
 
 use Illuminate\Support\Collection;
+use Illuminate\Contracts\Support\Arrayable;
 
-class ResponseObject
+class ResponseObject implements Arrayable
 {
     protected $attributes = [];
 
