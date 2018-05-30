@@ -240,6 +240,10 @@ class Candy
                 'grant_type' => 'client_credentials'
             ];
             $response = $this->requestToken($params);
+
+            if ($response->getStatus() == 401) {
+                throw new ClientCredentialsException($response->getBody()['message']);
+            }
             Cache::put('client_token', $response->getBody()->access_token, ($response->getBody()->expires_in / 60));
         }
         return Cache::get('client_token');
