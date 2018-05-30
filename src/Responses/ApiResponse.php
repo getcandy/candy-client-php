@@ -72,14 +72,9 @@ class ApiResponse extends AbstractResponse
             $this->body = $this->normalize(json_decode($this->response->getBody()->getContents(), true));
         } else {
             $body = $this->response['value']->getBody()->getContents();
-
-            if ($this->isHtml($body)) {
-                $this->body = $body;
-            } else {
-                $contents = json_decode($body, true);
-                $this->meta = $this->normalize($contents['meta']);
-                $this->body = $this->normalize($contents['data']);
-            }
+            $contents = json_decode($body, true);
+            $this->meta = $this->normalize($contents['meta']);
+            $this->body = $this->normalize($contents['data']);
         }
     }
 
