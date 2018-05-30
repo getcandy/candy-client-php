@@ -18,7 +18,6 @@ class ApiResponse extends AbstractResponse
 
     public function __construct($response)
     {
-
         $this->response = $response;
 
         if (!$this->wasSuccessful()) {
@@ -72,9 +71,15 @@ class ApiResponse extends AbstractResponse
         if ($this->response instanceof Response) {
             $this->body = $this->normalize(json_decode($this->response->getBody()->getContents(), true));
         } else {
-            $contents = json_decode($this->response['value']->getBody()->getContents(), true);
-            $this->meta = $this->normalize($contents['meta']);
-            $this->body = $this->normalize($contents['data']);
+            $body = $this->response['value']->getBody()->getContents();
+
+            if ($this->isHtml($body)) {
+                $this->body = $body;
+            } else {
+                $contents = json_decode($body, true);
+                $this->meta = $this->normalize($contents['meta']);
+                $this->body = $this->normalize($contents['data']);
+            }
         }
     }
 
@@ -102,7 +107,7 @@ class ApiResponse extends AbstractResponse
      */
     protected function normalize($response)
     {
-        if (isset($response[0]) && is_array($response[0])) {
+        if ((isset($response[0]) && is_array($response[0])) || is_array($response) && !count($response)) {
             return $this->mapCollection(
                 collect($response)
             );
@@ -194,5 +199,10 @@ class ApiResponse extends AbstractResponse
         }
 
         return $data;
+    }
+
+    protected function isHtml($content)
+    {
+        return preg_match("/<[^<]+>/", $content, $m) != 0;
     }
 }
