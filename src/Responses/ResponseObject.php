@@ -29,6 +29,11 @@ class ResponseObject implements Arrayable
         return $this->attributes[$name] ?? null;
     }
 
+    public function getAttributes()
+    {
+        return $this->attributes;
+    }
+
     public function toArray()
     {
         $data = [];

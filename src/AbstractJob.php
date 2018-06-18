@@ -34,11 +34,17 @@ abstract class AbstractJob implements JobInterface
         }
 
         if (!empty($this->params['id'])) {
-            $this->endpoint .= '/'.$this->params['id'];
+            // Check for {id}
+            if (strpos($this->endpoint, '{id}') !== false) {
+                $this->endpoint = str_replace('{id}', $this->params['id'], $this->endpoint);
+            } else {
+                $this->endpoint .= '/' . $this->params['id'];
+            }
             unset($this->params['id']);
         }
 
         $request = new Request($this->endpoint, $method, $this->params);
+
 
         if (!empty($this->decorator)) {
             $request->setDecorator($this->decorator);

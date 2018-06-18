@@ -42,6 +42,7 @@ class ApiResponse extends AbstractResponse
 
         $this->failed = true;
 
+
         if ($reason instanceof ClientException) {
             $contents = json_decode($reason->getResponse()->getBody()->getContents(), true);
             $this->body = $contents;
@@ -56,8 +57,8 @@ class ApiResponse extends AbstractResponse
             $this->body =json_decode($reason->getBody()->getContents(), true);
             $this->status = $reason->getStatusCode();
         } else {
-            $this->status = $response['error']['http_code'];
-            $this->body = $response['error']['message'];
+            $this->status = $reason['error']['http_code'];
+            $this->body = $reason['error']['message'];
         }
     }
 
@@ -73,8 +74,9 @@ class ApiResponse extends AbstractResponse
         } else {
             $body = $this->response['value']->getBody()->getContents();
             $contents = json_decode($body, true);
-            $this->meta = $this->normalize($contents['meta']);
-            $this->body = $this->normalize($contents['data']);
+
+            $this->meta = $this->normalize($contents['meta'] ?? []);
+            $this->body = $this->normalize($contents['data'] ?? []);
         }
     }
 
@@ -138,7 +140,9 @@ class ApiResponse extends AbstractResponse
     protected function mapItem($item)
     {
         $object = new ResponseObject();
-        foreach ($item as $key => $value) {
+
+        foreach ($item ?: [] as $key => $value) {
+
             if ($key == 'attribute_data') {
                 $attributes = $this->getMappedAttributes($value);
                 foreach ($attributes as $attribute => $body) {
@@ -146,7 +150,6 @@ class ApiResponse extends AbstractResponse
                 }
                 continue;
             }
-
             if (is_array($value) || $value instanceof \Illuminate\Database\Eloquent\Collection) {
                 if (!empty($value['data'])) {
                     if (isset($value['data'][0])) {

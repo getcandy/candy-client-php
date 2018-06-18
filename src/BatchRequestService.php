@@ -43,7 +43,8 @@ class BatchRequestService
             }
         }
 
-        $client = new Client(['base_uri' => CandyClient::getUrl()]);
+        $client = CandyClient::getClient();
+
         $promises = [];
 
         $headers = [
@@ -52,6 +53,7 @@ class BatchRequestService
         ];
 
         foreach ($requests as $request) {
+
             $options = [
                 'headers' => $headers,
                 'verify' => Config::get('services.ecommerce_api.verify'),
@@ -64,7 +66,14 @@ class BatchRequestService
                     $options['form_params'] = $request->getData();
                 }
             }
-            $promises[(string) $request] = $client->requestAsync($request->getMethod(), $request->getEndPoint(), $options);
+
+            $promises[(string) $request] = $client->requestAsync(
+                $request->getMethod(),
+                CandyClient::getUrl(
+                    $request->getEndPoint()
+                ),
+                $options
+            );
         }
 
         // Wait on all of the requests to complete. Throws a ConnectException if any of the requests fail

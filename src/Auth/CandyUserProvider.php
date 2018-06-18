@@ -12,7 +12,6 @@ class CandyUserProvider implements UserProvider
     {
         $payload = CandyClient::getRefreshToken($token);
 
-
         if ($payload->hasFailed()) {
             return null;
         }
@@ -49,7 +48,7 @@ class CandyUserProvider implements UserProvider
         $response = CandyClient::getUserToken($credentials['email'], $credentials['password']);
 
         if ($response->hasFailed()) {
-            return false;
+            return;
         }
 
         $payload = $response->getBody();

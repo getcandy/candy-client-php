@@ -50,6 +50,11 @@ class Candy
         dd('hit');
     }
 
+    public function getClient()
+    {
+        return $this->client;
+    }
+
     /**
      * Sets up the client
      *
