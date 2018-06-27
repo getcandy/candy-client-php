@@ -11,6 +11,6 @@ class Search extends AbstractJob
 {
     protected $method = 'GET';
     protected $endpoint = 'search';
-    protected $handle = 'search-products';
+    protected $handle = 'products-search';
     protected $decorator = Product::class;
 }
