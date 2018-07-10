@@ -7,6 +7,6 @@ use GetCandy\Client\Request;
 
 class Get extends AbstractJob
 {
-    protected $endpoint = 'orders';
+    protected $endpoint = 'orders/{id}';
     protected $handle = 'orders-get';
 }
