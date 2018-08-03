@@ -6,8 +6,8 @@ use GetCandy\Client\AbstractJob;
 use GetCandy\Client\Request;
 use Session;
 
-class Post extends AbstractJob
+class Put extends AbstractJob
 {
     protected $endpoint = 'users';
-    protected $handle = 'users-post';
+    protected $handle = 'update-user';
 }
