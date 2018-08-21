@@ -10,5 +10,5 @@ class Current extends AbstractJob
 {
     protected $endpoint = 'users/current';
     protected $method = 'GET';
-    protected $handle = 'products-get';
+    protected $handle = 'current-user';
 }
