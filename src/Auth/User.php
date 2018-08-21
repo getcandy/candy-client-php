@@ -47,6 +47,11 @@ class User implements Authenticatable
         $this->type = $type;
     }
 
+    public function getKey()
+    {
+        return $this->id;
+    }
+
     public function getExpiry()
     {
         return $this->expires;
