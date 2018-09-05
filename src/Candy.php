@@ -196,6 +196,17 @@ class Candy
 
     private function getClassFromChain()
     {
+        $classChain = $this->callChain;
+
+        // See if we have it in our config, i.e a custom job.
+        $customJob = implode('.', array_map('strtolower', $this->callChain));
+
+        $customJobs = config('getcandy.client_jobs', []);
+
+        if (!empty($customJobs[$customJob])) {
+            return $customJobs[$customJob];
+        }
+
         return "\\GetCandy\\Client\\Jobs\\" . implode("\\", array_map("ucfirst", $this->callChain));
     }
 
