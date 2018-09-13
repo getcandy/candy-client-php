@@ -6,6 +6,7 @@ use Session;
 
 abstract class AbstractJob implements JobInterface
 {
+    protected $method = 'GET';
     protected $requests = [];
     protected $params;
 
