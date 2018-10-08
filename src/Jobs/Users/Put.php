@@ -8,6 +8,7 @@ use Session;
 
 class Put extends AbstractJob
 {
-    protected $endpoint = 'users';
+    protected $endpoint = 'users/{id}';
+    protected $method = 'PUT';
     protected $handle = 'update-user';
 }
