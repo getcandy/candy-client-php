@@ -60,7 +60,8 @@ class BatchRequestService
             ];
 
             if ($request->getData()) {
-                if (strtoupper($request->getMethod()) == 'GET') {
+                $method = strtoupper($request->getMethod());
+                if ($method == 'GET' || $method == 'PUT') {
                     $options['query'] = $request->getData();
                 } else {
                     $options['form_params'] = $request->getData();
@@ -75,7 +76,6 @@ class BatchRequestService
                 $options
             );
         }
-
         // Wait on all of the requests to complete. Throws a ConnectException if any of the requests fail
         $results = Promise\settle($promises)->wait();
 
