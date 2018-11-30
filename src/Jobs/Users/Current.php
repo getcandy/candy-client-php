@@ -8,16 +8,7 @@ use Session;
 
 class Current extends AbstractJob
 {
-
-    protected function setup()
-    {
-        $action = 'api/v1/users/current';
-
-        if (is_string($this->params)) {
-            $action .= '/' . $this->params;
-        }
-
-        $this->addRequest('users-current', new Request($action, 'GET', $this->params));
-    }
-
+    protected $endpoint = 'users/current';
+    protected $method = 'GET';
+    protected $handle = 'current-user';
 }

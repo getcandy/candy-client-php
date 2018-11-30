@@ -2,7 +2,11 @@
 
 namespace GetCandy\Client;
 
+use Illuminate\Support\Facades\Auth;
+use GetCandy\Client\Auth\CandyGuard;
 use Illuminate\Support\ServiceProvider;
+use GetCandy\Client\Facades\CandyClient;
+use GetCandy\Client\Auth\CandyUserProvider;
 
 class GetCandyServiceProvider extends ServiceProvider
 {
@@ -13,9 +17,18 @@ class GetCandyServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        $this->registerHelpers();
-        $this->app->singleton('getcandy', function ($app) {
+
+        $this->app->singleton(CandyClient::class, function ($app) {
             return new Candy();
+        });
+
+        $this->app['auth']->extend('candy', function ($app, $name, array $config) {
+            return new CandyGuard(
+                'getcandy',
+                $this->app->make(CandyUserProvider::class),
+                $app['session.store'],
+                $app->request
+            );
         });
     }
 

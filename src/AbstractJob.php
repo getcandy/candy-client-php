@@ -6,9 +6,11 @@ use Session;
 
 abstract class AbstractJob implements JobInterface
 {
+    protected $method = 'GET';
     protected $requests = [];
+    protected $params;
 
-    public function __construct($params = [])
+    public function __construct($params)
     {
         $this->setParams($params);
         $this->setup();
@@ -16,9 +18,6 @@ abstract class AbstractJob implements JobInterface
 
     protected function setParams($params)
     {
-        if (is_string($params)) {
-            $this->params['id'] = $params;
-        }
         $this->params = $params;
     }
 
@@ -29,7 +28,30 @@ abstract class AbstractJob implements JobInterface
 
     protected function setup()
     {
-        // Add your requests here
+        if (empty($this->method)) {
+            $method = strtoupper(substr(strrchr(get_class($this), "\\"), 1));
+        } else {
+            $method = $this->method;
+        }
+
+        if (!empty($this->params['id'])) {
+            // Check for {id}
+            if (strpos($this->endpoint, '{id}') !== false) {
+                $this->endpoint = str_replace('{id}', $this->params['id'], $this->endpoint);
+            } else {
+                $this->endpoint .= '/' . $this->params['id'];
+            }
+            unset($this->params['id']);
+        }
+
+        $request = new Request($this->endpoint, $method, $this->params);
+
+
+        if (!empty($this->decorator)) {
+            $request->setDecorator($this->decorator);
+        }
+
+        $this->addRequest($this->handle, $request);
     }
 
     public function response($response)
@@ -55,13 +77,12 @@ abstract class AbstractJob implements JobInterface
         return $this->requests[$key];
     }
 
-    public function addResult($requestHash, $response)
+    public function addResult($requestHash, $response, $failed = false)
     {
         foreach ($this->requests as $index => $request) {
             $thisRequestHash = (string) $request;
-
             if ($thisRequestHash == $requestHash) {
-                $this->requests[$index]->setResponse($response);
+                $this->requests[$index]->setResponse($response, $failed);
             }
         }
     }
