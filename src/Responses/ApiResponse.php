@@ -5,6 +5,7 @@ namespace GetCandy\Client\Responses;
 use CandyClient;
 use GuzzleHttp\Exception\ClientException;
 use GuzzleHttp\Exception\ServerException;
+use GuzzleHttp\Exception\RequestException;
 use GuzzleHttp\Psr7\Response;
 
 class ApiResponse extends AbstractResponse
@@ -19,7 +20,6 @@ class ApiResponse extends AbstractResponse
     public function __construct($response)
     {
         $this->response = $response;
-
         if (!$this->wasSuccessful()) {
             $this->processErrorResponse();
         } else {
@@ -56,6 +56,9 @@ class ApiResponse extends AbstractResponse
         } elseif ($reason instanceof Response) {
             $this->body =json_decode($reason->getBody()->getContents(), true);
             $this->status = $reason->getStatusCode();
+        } elseif ($reason instanceof RequestException) {
+           $this->body = $reason->getMessage();
+           $this->status = 500;
         } else {
             $this->status = $reason['error']['http_code'];
             $this->body = $reason['error']['message'];
