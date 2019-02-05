@@ -51,12 +51,8 @@ class InternalRequest
      * @param array|null $files
      * @param array|null $server
      */
-    public function __construct(Request $request = null, $url = null, $parameters = null, $http_method = null, $headers = null, $content = null, $cookies = null, $files = null, $server = null)
+    public function __construct(Request $request, $url = null, $parameters = null, $http_method = null, $headers = null, $content = null, $cookies = null, $files = null, $server = null)
     {
-        if (!$request) {
-            $request = Request::createFromGlobals();
-        }
-
         $this->setBaseRequest($request);
 
         if ($url) {
@@ -105,7 +101,6 @@ class InternalRequest
         $cookies = $this->getCookies();
         $files = $this->getFiles();
         $server = $this->getServer();
-
         $headers = $this->getHeaders();
         $content = $this->getContent();
         $noContent = $this->noContent;
@@ -121,7 +116,6 @@ class InternalRequest
         }
 
         $this->new_request = $req;
-
         return $this;
     }
 
@@ -132,7 +126,15 @@ class InternalRequest
      */
     public function run()
     {
-        return app()->handle($this->new_request);
+        // Laravel is going to override our request, so we need to set it up here
+        // so we can switch to it.
+        $current = Request::capture();
+
+        $response = app()->getInstance()->handle($this->new_request);
+        // Reset the request back to it's original
+        app()->instance('request', $current);
+
+        return $response;
     }
 
     /**
