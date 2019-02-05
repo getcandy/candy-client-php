@@ -311,15 +311,16 @@ class Candy
             ]);
             $status = $response->getStatusCode();
             $contents = $response->getBody()->getContents();
+            $fulfilled = true;
         } catch (ClientException $e) {
             $contents = $e->getResponse()->getBody()->getContents();
             $status = $e->getResponse()->getStatusCode();
+            $fulfilled = false;
         }
 
         $response = new CandyHttpResponse($status);
-        $response->setData([
-            'data' => json_decode($contents, true)
-        ]);
+        $response->setData(['data' => json_decode($contents, true)]);
+        $response->setFulfilled($fulfilled);
         return new ApiResponse($response);
     }
 }
