@@ -57,6 +57,10 @@ class Internal extends AbstractDriver
         }
         $httpResponse = new CandyHttpResponse($response->getStatusCode());
         $httpResponse->setData($data);
+
+        if ($response->getStatusCode() >= 400) {
+            $httpResponse->setFulfilled(false);
+        }
         return $httpResponse;
     }
 
