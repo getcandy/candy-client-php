@@ -30,7 +30,7 @@ class CandyHttpResponse
      *
      * @var boolean
      */
-    protected $fulfilled;
+    protected $fulfilled = true;
 
     public function __construct($status = 200)
     {
