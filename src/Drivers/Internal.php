@@ -72,11 +72,12 @@ class Internal extends AbstractDriver
      */
     protected function buildRequest(Request $request)
     {
-        // $http = HttpRequest::create(
-        //     CandyClient::getUrl($request->getEndPoint()),
-        //     $request->getMethod()
-        // );
-        return (new InternalRequest)
+        $http = HttpRequest::create(
+            CandyClient::getUrl($request->getEndPoint()),
+            $request->getMethod()
+        );
+
+        return (new InternalRequest($http))
             ->setUrl(CandyClient::getUrl($request->getEndPoint()))
             ->setMethod($request->getMethod())
             ->setParameters($request->getData())
