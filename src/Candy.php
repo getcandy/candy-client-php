@@ -8,6 +8,7 @@ use GuzzleHttp\Client;
 use GuzzleHttp\Exception\ClientException;
 use GetCandy\Client\Exceptions\ClientCredentialsException;
 use GetCandy\Client\Responses\ApiResponse;
+use GetCandy\Client\Responses\CandyHttpResponse;
 
 class Candy
 {
@@ -22,8 +23,24 @@ class Candy
     protected $locale = 'en';
     protected $client;
     protected $token = null;
+    protected $driver;
 
+    public function __construct($internal = false)
+    {
+        $manager = app()->getInstance()->make(CandyClientManager::class);
+        if ($internal) {
+            $this->driver = $manager->with('internal');
+        } else {
+            $this->driver = $manager->with('guzzle');
+        }
+    }
 
+    /**
+     * Set the token value
+     *
+     * @param string $token
+     * @return self
+     */
     public function setToken($token)
     {
         $this->token = $token;
@@ -161,10 +178,9 @@ class Candy
     public function execute()
     {
         $job = $this->getJob();
-        $batch = new BatchRequestService();
-        $batch->add($job);
-        $batch->execute();
 
+        $this->driver->add($job);
+        $this->driver->execute();
         $this->reset();
 
         return $job->getRequest();
@@ -172,7 +188,7 @@ class Candy
 
     public function batch(Closure $addJobs)
     {
-        $batch = new \GetCandy\Client\BatchRequestService();
+        $batch = new \GetCandy\Client\InternalBatchRequestService();
 
         $addJobs($batch);
 
@@ -293,9 +309,17 @@ class Candy
                 ),
                 'verify' => config('services.ecommerce_api.verify'),
             ]);
+            $status = $response->getStatusCode();
+            $contents = $response->getBody()->getContents();
         } catch (ClientException $e) {
-            return new ApiResponse($e->getResponse());
+            $contents = $e->getResponse()->getBody()->getContents();
+            $status = $e->getResponse()->getStatusCode();
         }
+
+        $response = new CandyHttpResponse($status);
+        $response->setData([
+            'data' => json_decode($contents, true)
+        ]);
         return new ApiResponse($response);
     }
 }

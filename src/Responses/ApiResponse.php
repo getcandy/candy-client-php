@@ -3,21 +3,12 @@
 namespace GetCandy\Client\Responses;
 
 use CandyClient;
-use GuzzleHttp\Exception\ClientException;
-use GuzzleHttp\Exception\ServerException;
-use GuzzleHttp\Exception\RequestException;
-use GuzzleHttp\Psr7\Response;
 
 class ApiResponse extends AbstractResponse
 {
-    protected $states = [
-        'rejected' => 0,
-        'fulfilled' => 1
-    ];
-
     protected $response;
 
-    public function __construct($response)
+    public function __construct(CandyHttpResponse $response)
     {
         $this->response = $response;
         if (!$this->wasSuccessful()) {
@@ -34,35 +25,9 @@ class ApiResponse extends AbstractResponse
      */
     protected function processErrorResponse()
     {
-        if ($this->response instanceof Response) {
-            $reason = $this->response;
-        } else {
-            $reason = $this->response['reason'];
-        }
-
         $this->failed = true;
-
-
-        if ($reason instanceof ClientException) {
-            $contents = json_decode($reason->getResponse()->getBody()->getContents(), true);
-            $this->body = $contents;
-            $this->status = $reason->getResponse()->getStatusCode();
-            $this->meta = $reason->getTrace();
-        } elseif ($reason instanceof ServerException) {
-            $contents = json_decode($reason->getResponse()->getBody()->getContents(), true);
-            $this->body = $contents;
-            $this->status = $reason->getResponse()->getStatusCode();
-            $this->meta = $reason->getTrace();
-        } elseif ($reason instanceof Response) {
-            $this->body =json_decode($reason->getBody()->getContents(), true);
-            $this->status = $reason->getStatusCode();
-        } elseif ($reason instanceof RequestException) {
-           $this->body = $reason->getMessage();
-           $this->status = 500;
-        } else {
-            $this->status = $reason['error']['http_code'];
-            $this->body = $reason['error']['message'];
-        }
+        $this->body = $this->response->getData();
+        $this->status = $this->response->getStatusCode();
     }
 
     /**
@@ -72,15 +37,10 @@ class ApiResponse extends AbstractResponse
      */
     protected function processSuccessResponse()
     {
-        if ($this->response instanceof Response) {
-            $this->body = $this->normalize(json_decode($this->response->getBody()->getContents(), true));
-        } else {
-            $body = $this->response['value']->getBody()->getContents();
-            $contents = json_decode($body, true);
-
-            $this->meta = $this->normalize($contents['meta'] ?? []);
-            $this->body = $this->normalize($contents['data'] ?? []);
-        }
+        $contents = $this->response->getData();
+        $this->meta = $this->normalize($contents['meta'] ?? []);
+        $this->body = $this->normalize($contents['data'] ?? []);
+        $this->stauts = $this->response->getStatusCode();
     }
 
     /**
@@ -90,12 +50,7 @@ class ApiResponse extends AbstractResponse
      */
     private function wasSuccessful()
     {
-        if ($this->response instanceof Response) {
-            return $this->response->getStatusCode() == 200;
-        }
-        return isset($this->states[$this->response['state']]) ?
-            (bool) $this->states[$this->response['state']] :
-            false;
+        return $this->response->fulfilled();
     }
 
     /**
@@ -162,8 +117,10 @@ class ApiResponse extends AbstractResponse
                     }
                 } elseif (isset($value[0]) || !count($value)) {
                     $value = $this->mapCollection($value);
-                } elseif (isset($value['data']) && !count($value['data'])) {
+                } elseif (isset($value['data']) && is_iterable($value['data'])) {
                     $value = $this->mapCollection($value['data']);
+                } elseif (array_key_exists('data', $value) && is_null($value['data'])) {
+                    $value = $value['data'];
                 }
             }
             $object->{$key} = $value;

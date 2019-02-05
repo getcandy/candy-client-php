@@ -1,34 +1,17 @@
 <?php
 
-namespace GetCandy\Client;
+namespace GetCandy\Client\Drivers;
 
 use Config;
 use CandyClient;
 use Carbon\Carbon;
-use GuzzleHttp\Pool;
-use Mockery\Exception;
 use GuzzleHttp\Client;
 use GuzzleHttp\Promise;
-use GuzzleHttp\Middleware;
-use GuzzleHttp\HandlerStack;
-use GuzzleHttp\Psr7\Request;
-use GuzzleHttp\Handler\CurlHandler;
-use GuzzleHttp\Exception\ClientException;
+use GetCandy\Client\Responses\CandyHttpResponse;
+use GuzzleHttp\Psr7\Response;
 
-class BatchRequestService
+class Guzzle extends AbstractDriver
 {
-    protected $jobs = [];
-
-    public function add(JobInterface $job, $reference = null)
-    {
-        $this->jobs[$reference] = $job;
-    }
-
-    public function getJobs()
-    {
-        return $this->jobs;
-    }
-
     public function execute($force = false)
     {
         // Collect all API requests
@@ -53,7 +36,6 @@ class BatchRequestService
         ];
 
         foreach ($requests as $request) {
-
             $options = [
                 'headers' => $headers,
                 'verify' => Config::get('services.ecommerce_api.verify'),
@@ -82,11 +64,34 @@ class BatchRequestService
         foreach ($promises as $index => $promise) {
             $response = $results[$index];
             foreach ($this->jobs as $job) {
-                $job->addResult($index, $response);
+                $job->addResult($index, $this->parseResponse($response));
                 if ($job->canRun()) {
                     $job->run();
                 }
             }
         }
+    }
+
+    /**
+     * Parse the guzzle response
+     *
+     * @param mixed $response
+     * @return void
+     */
+    protected function parseResponse($response)
+    {
+        $psr = $response['value'] ?? $response;
+
+        $fulfilled = true;
+        if ($response['state'] == 'rejected') {
+           $psr = $response['reason']->getResponse();
+           $fulfilled = false;
+        }
+
+        $data = json_decode($psr->getBody()->getContents(), true);
+        $httpResponse = new CandyHttpResponse($psr->getStatusCode());
+        $httpResponse->setData($data);
+        $httpResponse->setFulfilled($fulfilled);
+        return $httpResponse;
     }
 }

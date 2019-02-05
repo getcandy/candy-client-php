@@ -19,9 +19,17 @@ abstract class AbstractResponse
         return $this->status;
     }
 
-    public function hasFailed()
+    public function failed()
     {
         return $this->failed;
+    }
+
+    /**
+     * @deprecated 0.2.0
+     */
+    public function hasFailed()
+    {
+        return $this->failed();
     }
 
     public function getMeta()
