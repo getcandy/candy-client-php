@@ -40,7 +40,7 @@ class ApiResponse extends AbstractResponse
         $contents = $this->response->getData();
         $this->meta = $this->normalize($contents['meta'] ?? []);
         $this->body = $this->normalize($contents['data'] ?? []);
-        $this->stauts = $this->response->getStatusCode();
+        $this->status = $this->response->getStatusCode();
     }
 
     /**
