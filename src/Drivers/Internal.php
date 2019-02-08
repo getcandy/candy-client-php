@@ -80,7 +80,7 @@ class Internal extends AbstractDriver
         return (new InternalRequest($http))
             ->setUrl(CandyClient::getUrl($request->getEndPoint()))
             ->setMethod($request->getMethod())
-            ->setParameters($request->getData())
+            ->setParameters($request->getData() ?: [])
             ->setHeaders($this->getDefaultHeaders());
     }
 }
