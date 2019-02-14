@@ -25,9 +25,9 @@ class Candy
     protected $token = null;
     protected $driver;
 
-    public function __construct($internal = false)
+    public function __construct($app, $internal = false)
     {
-        $manager = app()->getInstance()->make(CandyClientManager::class);
+        $manager = $app->make(CandyClientManager::class);
         if ($internal) {
             $this->driver = $manager->with('internal');
         } else {

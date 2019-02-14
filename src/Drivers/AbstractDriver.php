@@ -4,10 +4,18 @@ namespace GetCandy\Client\Drivers;
 
 use CandyClient;
 use GetCandy\Client\JobInterface;
+use Illuminate\Foundation\Application;
 
 abstract class AbstractDriver
 {
     protected $jobs = [];
+
+    protected $app;
+
+    public function __construct(Application $app)
+    {
+        $this->app = $app;
+    }
 
     /**
      * Get the default headers
@@ -20,6 +28,7 @@ abstract class AbstractDriver
         return [
             'Authorization' => 'Bearer ' . CandyClient::getToken($force),
             'accept' => 'application/json',
+            'Accept-Language' => $this->app->getLocale(),
         ];
     }
 

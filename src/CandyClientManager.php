@@ -47,7 +47,7 @@ class CandyClientManager extends Manager
      */
     public function buildProvider($provider)
     {
-        return new $provider;
+        return new $provider($this->app);
     }
 
     /**

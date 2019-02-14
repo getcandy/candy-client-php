@@ -128,10 +128,8 @@ class InternalRequest
     {
         // Laravel is going to override our request, so we need to set it up here
         // so we can switch to it.
-        $current = Request::capture();
-
+        $current = app()->request;
         $response = app()->getInstance()->handle($this->new_request);
-        // Reset the request back to it's original
         app()->instance('request', $current);
 
         return $response;
