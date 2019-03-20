@@ -2,9 +2,9 @@
 
 namespace GetCandy\Client\Auth;
 
+use GetCandy\Client\Facades\CandyClient;
 use Illuminate\Contracts\Auth\UserProvider;
 use Illuminate\Contracts\Auth\Authenticatable;
-use GetCandy\Client\Facades\CandyClient;
 
 class CandyUserProvider implements UserProvider
 {
@@ -13,7 +13,7 @@ class CandyUserProvider implements UserProvider
         $payload = CandyClient::getRefreshToken($token);
 
         if ($payload->hasFailed()) {
-            return null;
+            return;
         }
 
         $user = CandyClient::setToken($payload->getBody()->access_token)->users()->current();
@@ -33,7 +33,7 @@ class CandyUserProvider implements UserProvider
         $user = CandyClient::setToken($identifier)->users()->current();
 
         if ($user->hasFailed()) {
-            return null;
+            return;
         }
 
         return new User(

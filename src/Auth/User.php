@@ -2,8 +2,8 @@
 
 namespace GetCandy\Client\Auth;
 
-use Illuminate\Contracts\Auth\Authenticatable;
 use Carbon\Carbon;
+use Illuminate\Contracts\Auth\Authenticatable;
 
 class User implements Authenticatable
 {

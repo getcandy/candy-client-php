@@ -2,8 +2,8 @@
 
 namespace GetCandy\Client\Facades;
 
-use GetCandy\Client\Testing\CandyClientFake;
 use Illuminate\Support\Facades\Facade;
+use GetCandy\Client\Testing\CandyClientFake;
 
 class CandyClient extends Facade
 {

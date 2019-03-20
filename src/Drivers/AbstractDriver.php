@@ -18,22 +18,22 @@ abstract class AbstractDriver
     }
 
     /**
-     * Get the default headers
+     * Get the default headers.
      *
-     * @param boolean $force
+     * @param bool $force
      * @return void
      */
     protected function getDefaultHeaders($force = false)
     {
         return [
-            'Authorization' => 'Bearer ' . CandyClient::getToken($force),
+            'Authorization' => 'Bearer '.CandyClient::getToken($force),
             'accept' => 'application/json',
             'Accept-Language' => $this->app->getLocale(),
         ];
     }
 
     /**
-     * Add a job to the queue
+     * Add a job to the queue.
      *
      * @param JobInterface $job
      * @param string|null $reference
@@ -45,7 +45,7 @@ abstract class AbstractDriver
     }
 
     /**
-     * Get the jobs
+     * Get the jobs.
      *
      * @return array|Collection
      */
@@ -55,10 +55,10 @@ abstract class AbstractDriver
     }
 
     /**
-     * Execute the queue of jobs
+     * Execute the queue of jobs.
      *
-     * @param boolean $force
+     * @param bool $force
      * @return void
      */
-    abstract function execute($force = false);
+    abstract public function execute($force = false);
 }

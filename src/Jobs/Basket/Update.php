@@ -3,8 +3,6 @@
 namespace GetCandy\Client\Jobs\Basket;
 
 use GetCandy\Client\AbstractJob;
-use GetCandy\Client\Request;
-use Session;
 
 class Update extends AbstractJob
 {

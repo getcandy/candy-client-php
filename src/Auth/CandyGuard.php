@@ -2,21 +2,13 @@
 
 namespace GetCandy\Client\Auth;
 
-use Carbon\Carbon;
-use RuntimeException;
-use Illuminate\Support\Str;
-use Illuminate\Auth\SessionGuard;
 use Illuminate\Auth\GuardHelpers;
-use Illuminate\Support\Facades\Hash;
+use Illuminate\Auth\SessionGuard;
 use Illuminate\Support\Traits\Macroable;
 use Illuminate\Contracts\Session\Session;
-use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Contracts\Auth\UserProvider;
-use Illuminate\Contracts\Auth\StatefulGuard;
+use Illuminate\Contracts\Events\Dispatcher;
 use Symfony\Component\HttpFoundation\Request;
-use Illuminate\Contracts\Auth\SupportsBasicAuth;
-use Illuminate\Contracts\Cookie\QueueingFactory as CookieJar;
-use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
 use Illuminate\Contracts\Auth\Authenticatable as AuthenticatableContract;
 
 class CandyGuard extends SessionGuard
@@ -137,18 +129,17 @@ class CandyGuard extends SessionGuard
             $expires = $this->session->get($this->getName('expires'));
         }
 
-
         // If we've already retrieved the user for the current request we can just
         // return it back immediately. We do not want to fetch the user data on
         // every call to this method because that would be tremendously slow.
-        if (!is_null($this->user)) {
+        if (! is_null($this->user)) {
             return $this->user;
         }
 
         // First we will try to load the user using the identifier in the session if
         // one exists. Otherwise we will check for a "remember me" cookie in this
         // request, and if one exists, attempt to retrieve the user using that.
-        if (!is_null($id)) {
+        if (! is_null($id)) {
             if ($this->user = $this->provider->retrieveById($id)) {
                 $this->user->setToken($id);
                 $this->user->setExpiry($expires);
@@ -163,7 +154,7 @@ class CandyGuard extends SessionGuard
         // the application. Once we have a user we can return it to the caller.
         $recaller = $this->recaller();
 
-        if (is_null($this->user) && !is_null($recaller)) {
+        if (is_null($this->user) && ! is_null($recaller)) {
             $this->user = $this->userFromRecaller($recaller);
 
             if ($this->user) {
@@ -176,7 +167,6 @@ class CandyGuard extends SessionGuard
         return $this->user;
     }
 
-
     /**
      * Log the given user ID into the application.
      *
@@ -186,7 +176,7 @@ class CandyGuard extends SessionGuard
      */
     public function loginUsingId($id, $remember = false)
     {
-        if (!is_null($user = $this->provider->retrieveById($id))) {
+        if (! is_null($user = $this->provider->retrieveById($id))) {
             $this->login($user, $remember);
 
             return $user;
@@ -243,7 +233,7 @@ class CandyGuard extends SessionGuard
         // listening for anytime a user signs out of this application manually.
         $this->clearUserDataFromStorage();
 
-        if (!is_null($this->user)) {
+        if (! is_null($this->user)) {
             $this->cycleRememberToken($user);
         }
 
@@ -270,13 +260,11 @@ class CandyGuard extends SessionGuard
         $this->session->remove($this->getName('expires'));
         $this->session->remove($this->getName('refresh'));
 
-        if (!is_null($this->recaller())) {
+        if (! is_null($this->recaller())) {
             $this->getCookieJar()->queue($this->getCookieJar()
                 ->forget($this->getRecallerName()));
         }
     }
-
-
 
     /**
      * Get a unique identifier for the auth session value.
@@ -285,6 +273,6 @@ class CandyGuard extends SessionGuard
      */
     public function getName($handle = null)
     {
-        return 'login_' . $this->name . ($handle ? '_' . $handle : null) . '_' . sha1(static::class);
+        return 'login_'.$this->name.($handle ? '_'.$handle : null).'_'.sha1(static::class);
     }
 }

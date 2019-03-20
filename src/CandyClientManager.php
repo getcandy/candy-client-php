@@ -20,7 +20,7 @@ class CandyClientManager extends Manager
     }
 
     /**
-     * Create the Guzzle driver instance
+     * Create the Guzzle driver instance.
      *
      * @return Guzzle
      */

@@ -10,7 +10,7 @@ use GuzzleHttp\Handler\MockHandler;
 class CandyClientFake extends Candy
 {
     /**
-     * Sets up the client
+     * Sets up the client.
      *
      * @param string $url
      * @param array $config
@@ -26,7 +26,7 @@ class CandyClientFake extends Candy
     }
 
     /**
-     * Set the client for the next request
+     * Set the client for the next request.
      *
      * @param mixed $response
      * @param callable $callable
@@ -36,16 +36,16 @@ class CandyClientFake extends Candy
     {
         if ($callable && is_callable($callable)) {
             $response = new Response($response, $callable());
-        } elseif (!$response instanceof Response) {
+        } elseif (! $response instanceof Response) {
             abort(400);
         }
         $this->client = new Client([
-            'handler' => $this->getStack($response)
+            'handler' => $this->getStack($response),
         ]);
     }
 
     /**
-     * Queue up responses
+     * Queue up responses.
      *
      * @param array $responses
      * @return void
@@ -53,12 +53,12 @@ class CandyClientFake extends Candy
     public function queue(array $responses)
     {
         $this->client = new Client([
-            'handler' => $this->getStack($responses)
+            'handler' => $this->getStack($responses),
         ]);
     }
 
     /**
-     * Get the handler stack
+     * Get the handler stack.
      *
      * @param mixed $responses
      * @return HandlerStack
@@ -71,7 +71,7 @@ class CandyClientFake extends Candy
     }
 
     /**
-     * Get the call stack handler
+     * Get the call stack handler.
      *
      * @param int $status
      * @param array $body
@@ -94,9 +94,9 @@ class CandyClientFake extends Candy
     }
 
     /**
-     * Get the access token
+     * Get the access token.
      *
-     * @param boolean $force
+     * @param bool $force
      * @return string
      */
     public function getToken($force = false)

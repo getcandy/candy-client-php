@@ -3,8 +3,6 @@
 namespace GetCandy\Client\Jobs\Orders;
 
 use GetCandy\Client\AbstractJob;
-use GetCandy\Client\Request;
-use Session;
 
 class Create extends AbstractJob
 {

@@ -4,11 +4,9 @@ namespace GetCandy\Client\Drivers;
 
 use Config;
 use CandyClient;
-use Carbon\Carbon;
-use GuzzleHttp\Client;
 use GuzzleHttp\Promise;
-use GetCandy\Client\Responses\CandyHttpResponse;
 use GuzzleHttp\Psr7\Response;
+use GetCandy\Client\Responses\CandyHttpResponse;
 
 class Guzzle extends AbstractDriver
 {
@@ -20,7 +18,7 @@ class Guzzle extends AbstractDriver
         // Get unique requests
         foreach ($this->jobs as $job) {
             foreach ($job->getRequests() as $request) {
-                if (!in_array($request, $requests)) {
+                if (! in_array($request, $requests)) {
                     $requests[(string) $request] = $request;
                 }
             }
@@ -31,8 +29,8 @@ class Guzzle extends AbstractDriver
         $promises = [];
 
         $headers = [
-            'Authorization' => 'Bearer ' . CandyClient::getToken($force),
-            'Accept' => 'application/json'
+            'Authorization' => 'Bearer '.CandyClient::getToken($force),
+            'Accept' => 'application/json',
         ];
 
         foreach ($requests as $request) {
@@ -73,7 +71,7 @@ class Guzzle extends AbstractDriver
     }
 
     /**
-     * Parse the guzzle response
+     * Parse the guzzle response.
      *
      * @param mixed $response
      * @return void
@@ -84,14 +82,15 @@ class Guzzle extends AbstractDriver
 
         $fulfilled = true;
         if ($response['state'] == 'rejected') {
-           $psr = $response['reason']->getResponse();
-           $fulfilled = false;
+            $psr = $response['reason']->getResponse();
+            $fulfilled = false;
         }
 
         $data = json_decode($psr->getBody()->getContents(), true);
         $httpResponse = new CandyHttpResponse($psr->getStatusCode());
         $httpResponse->setData($data);
         $httpResponse->setFulfilled($fulfilled);
+
         return $httpResponse;
     }
 }
