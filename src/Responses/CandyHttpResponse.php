@@ -5,30 +5,30 @@ namespace GetCandy\Client\Responses;
 class CandyHttpResponse
 {
     /**
-     * The HTTP response code
+     * The HTTP response code.
      *
-     * @var integer
+     * @var int
      */
     protected $statusCode = 200;
 
     /**
-     * The response data
+     * The response data.
      *
      * @var array
      */
     protected $data;
 
     /**
-     * Any reason the for HTTP response
+     * Any reason the for HTTP response.
      *
      * @var string
      */
     protected $reason;
 
     /**
-     * Whether the request was fulfilled
+     * Whether the request was fulfilled.
      *
-     * @var boolean
+     * @var bool
      */
     protected $fulfilled = true;
 
@@ -38,7 +38,7 @@ class CandyHttpResponse
     }
 
     /**
-     * Get the HTTP reason
+     * Get the HTTP reason.
      *
      * @return void
      */
@@ -48,19 +48,20 @@ class CandyHttpResponse
     }
 
     /**
-     * Set whether the request was fulfilled
+     * Set whether the request was fulfilled.
      *
-     * @param integer $bool
+     * @param int $bool
      * @return self
      */
     public function setFulfilled($bool)
     {
         $this->fulfilled = $bool;
+
         return $this;
     }
 
     /**
-     * Set the reason
+     * Set the reason.
      *
      * @param string $reason
      * @return self
@@ -68,6 +69,7 @@ class CandyHttpResponse
     public function setReason($reason)
     {
         $this->reason = $reason;
+
         return $this;
     }
 
@@ -77,19 +79,20 @@ class CandyHttpResponse
     }
 
     /**
-     * Set the status code
+     * Set the status code.
      *
-     * @param integer $code
+     * @param int $code
      * @return self
      */
     public function setStatusCode($code)
     {
         $this->statusCode = $code;
+
         return $this;
     }
 
     /**
-     * Set the value for data
+     * Set the value for data.
      *
      * @param array $data
      * @return self
@@ -97,11 +100,12 @@ class CandyHttpResponse
     public function setData($data)
     {
         $this->data = $data;
+
         return $this;
     }
 
     /**
-     * The response data
+     * The response data.
      *
      * @return array
      */
@@ -111,9 +115,9 @@ class CandyHttpResponse
     }
 
     /**
-     * Return fulfilled value
+     * Return fulfilled value.
      *
-     * @return boolean
+     * @return bool
      */
     public function fulfilled()
     {

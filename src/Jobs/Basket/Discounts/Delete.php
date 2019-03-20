@@ -3,7 +3,6 @@
 namespace GetCandy\Client\Jobs\Basket\Discounts;
 
 use GetCandy\Client\AbstractJob;
-use GetCandy\Client\Request;
 
 class Delete extends AbstractJob
 {

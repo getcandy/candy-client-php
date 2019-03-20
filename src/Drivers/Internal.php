@@ -5,8 +5,8 @@ namespace GetCandy\Client\Drivers;
 use CandyClient;
 use Request as HttpRequest;
 use GetCandy\Client\Request;
-use GetCandy\Client\InternalRequest;
 use Illuminate\Http\JsonResponse;
+use GetCandy\Client\InternalRequest;
 use GetCandy\Client\Responses\CandyHttpResponse;
 
 class Internal extends AbstractDriver
@@ -19,7 +19,7 @@ class Internal extends AbstractDriver
         // Get unique requests
         foreach ($this->jobs as $job) {
             foreach ($job->getRequests() as $request) {
-                if (!in_array($request, $requests)) {
+                if (! in_array($request, $requests)) {
                     $requests[(string) $request] = $this->buildRequest($request);
                 }
             }
@@ -43,7 +43,7 @@ class Internal extends AbstractDriver
     }
 
     /**
-     * Parses the response so API response can render it
+     * Parses the response so API response can render it.
      *
      * @param mixed $response
      * @return CandyResponse
@@ -61,11 +61,12 @@ class Internal extends AbstractDriver
         if ($response->getStatusCode() >= 400) {
             $httpResponse->setFulfilled(false);
         }
+
         return $httpResponse;
     }
 
     /**
-     * Builds the request
+     * Builds the request.
      *
      * @param Request $request
      * @return InternalRequest

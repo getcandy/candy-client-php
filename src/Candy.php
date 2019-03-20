@@ -6,9 +6,9 @@ use Cache;
 use Closure;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\ClientException;
-use GetCandy\Client\Exceptions\ClientCredentialsException;
 use GetCandy\Client\Responses\ApiResponse;
 use GetCandy\Client\Responses\CandyHttpResponse;
+use GetCandy\Client\Exceptions\ClientCredentialsException;
 
 class Candy
 {
@@ -36,7 +36,7 @@ class Candy
     }
 
     /**
-     * Set the token value
+     * Set the token value.
      *
      * @param string $token
      * @return self
@@ -44,11 +44,12 @@ class Candy
     public function setToken($token)
     {
         $this->token = $token;
+
         return $this;
     }
 
     /**
-     * Revoke an access token
+     * Revoke an access token.
      *
      * @param string $token
      *
@@ -56,10 +57,10 @@ class Candy
      */
     public function revoke($token)
     {
-        $this->client->delete('oauth/personal-access-tokens/' . $token, [
+        $this->client->delete('oauth/personal-access-tokens/'.$token, [
             'form_params' => [
                     'client_id' => $this->getClientId(),
-                    'client_secret' => $this->getClientSecret()
+                    'client_secret' => $this->getClientSecret(),
             ],
             'verify' => config('services.ecommerce_api.verify'),
         ]);
@@ -73,7 +74,7 @@ class Candy
     }
 
     /**
-     * Sets up the client
+     * Sets up the client.
      *
      * @param string $url
      * @param array $config
@@ -88,13 +89,13 @@ class Candy
         $this->channel = $config['channel'] ?? $this->channel;
 
         $this->client = new Client([
-            'base_uri' => $this->getUri()
+            'base_uri' => $this->getUri(),
         ]);
     }
 
     public function getUrl($endpoint = null)
     {
-        return $this->url . '/api/v1/' . $endpoint;
+        return $this->url.'/api/v1/'.$endpoint;
     }
 
     public function getUri()
@@ -126,7 +127,7 @@ class Candy
     {
         $this->callChain[] = ucfirst($name);
 
-        if (!empty($arguments)) {
+        if (! empty($arguments)) {
             $this->addParams($arguments);
         }
 
@@ -143,7 +144,7 @@ class Candy
 
     protected function addParams($params)
     {
-        if (!is_array($params[0])) {
+        if (! is_array($params[0])) {
             $this->params['id'] = $params[0];
         } else {
             foreach ($params[0] as $key => $value) {
@@ -219,15 +220,15 @@ class Candy
 
         $customJobs = config('getcandy.client_jobs', []);
 
-        if (!empty($customJobs[$customJob])) {
+        if (! empty($customJobs[$customJob])) {
             return $customJobs[$customJob];
         }
 
-        return "\\GetCandy\\Client\\Jobs\\" . implode("\\", array_map("ucfirst", $this->callChain));
+        return '\\GetCandy\\Client\\Jobs\\'.implode('\\', array_map('ucfirst', $this->callChain));
     }
 
     /**
-     * Gets a refresh token
+     * Gets a refresh token.
      *
      * @param string $refreshToken
      *
@@ -237,14 +238,14 @@ class Candy
     {
         $params = [
             'refresh_token' => $refreshToken,
-            'grant_type' => 'refresh_token'
+            'grant_type' => 'refresh_token',
         ];
 
         return $this->requestToken($params);
     }
 
     /**
-     * Get an access token for a user
+     * Get an access token for a user.
      *
      * @return mixed
      */
@@ -253,23 +254,23 @@ class Candy
         return $this->requestToken([
             'username' => $username,
             'password' => $password,
-            'grant_type' => 'password'
+            'grant_type' => 'password',
         ]);
     }
 
     /**
-     * Gets a client token
+     * Gets a client token.
      *
      * @return mixed
      */
     public function getClientToken()
     {
-        if (!Cache::has('client_token')) {
+        if (! Cache::has('client_token')) {
             $params = [
                 'client_id' => $this->getClientId(),
                 'client_secret' => $this->getClientSecret(),
                 'scope' => '',
-                'grant_type' => 'client_credentials'
+                'grant_type' => 'client_credentials',
             ];
             $response = $this->requestToken($params);
 
@@ -278,20 +279,21 @@ class Candy
             }
             Cache::put('client_token', $response->getBody()->access_token, ($response->getBody()->expires_in / 60));
         }
+
         return Cache::get('client_token');
     }
-
 
     public function getToken($force = false)
     {
         if ($this->token) {
             return $this->token;
         }
+
         return $this->getClientToken();
     }
 
     /**
-     * Request a token from the API
+     * Request a token from the API.
      *
      * @param array $params
      * @return mixed
@@ -303,7 +305,7 @@ class Candy
                 'form_params' => array_merge(
                     [
                         'client_id' => $this->getClientId(),
-                        'client_secret' => $this->getClientSecret()
+                        'client_secret' => $this->getClientSecret(),
                     ],
                     $params
                 ),
@@ -321,6 +323,7 @@ class Candy
         $response = new CandyHttpResponse($status);
         $response->setData(['data' => json_decode($contents, true)]);
         $response->setFulfilled($fulfilled);
+
         return new ApiResponse($response);
     }
 }

@@ -66,6 +66,6 @@ class Request
 
     public function __toString()
     {
-         return md5($this->endPoint . $this->method . json_encode($this->data));
+        return md5($this->endPoint.$this->method.json_encode($this->data));
     }
 }

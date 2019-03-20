@@ -3,8 +3,6 @@
 namespace GetCandy\Client\Jobs\Users\Payments;
 
 use GetCandy\Client\AbstractJob;
-use GetCandy\Client\Request;
-use Session;
 
 class Delete extends AbstractJob
 {

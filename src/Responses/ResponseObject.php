@@ -52,6 +52,7 @@ class ResponseObject implements Arrayable
             }
             $data[$key] = $value;
         }
+
         return $data;
     }
 }

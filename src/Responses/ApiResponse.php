@@ -11,7 +11,7 @@ class ApiResponse extends AbstractResponse
     public function __construct(CandyHttpResponse $response)
     {
         $this->response = $response;
-        if (!$this->wasSuccessful()) {
+        if (! $this->wasSuccessful()) {
             $this->processErrorResponse();
         } else {
             $this->processSuccessResponse();
@@ -19,7 +19,7 @@ class ApiResponse extends AbstractResponse
     }
 
     /**
-     * Processes a failed request
+     * Processes a failed request.
      *
      * @return void
      */
@@ -31,7 +31,7 @@ class ApiResponse extends AbstractResponse
     }
 
     /**
-     * Processes a successful request
+     * Processes a successful request.
      *
      * @return void
      */
@@ -44,9 +44,9 @@ class ApiResponse extends AbstractResponse
     }
 
     /**
-     * Determines whether the request was successful
+     * Determines whether the request was successful.
      *
-     * @return boolean
+     * @return bool
      */
     private function wasSuccessful()
     {
@@ -54,7 +54,7 @@ class ApiResponse extends AbstractResponse
     }
 
     /**
-     * Normalises our response data
+     * Normalises our response data.
      *
      * @param array $response
      *
@@ -62,16 +62,17 @@ class ApiResponse extends AbstractResponse
      */
     protected function normalize($response)
     {
-        if ((isset($response[0]) && is_array($response[0])) || is_array($response) && !count($response)) {
+        if ((isset($response[0]) && is_array($response[0])) || is_array($response) && ! count($response)) {
             return $this->mapCollection(
                 collect($response)
             );
         }
+
         return $this->mapItem($response);
     }
 
     /**
-     * Maps a response collection
+     * Maps a response collection.
      *
      * @param mixed $items
      *
@@ -89,7 +90,7 @@ class ApiResponse extends AbstractResponse
     }
 
     /**
-     * Maps an item in the response
+     * Maps an item in the response.
      *
      * @param mixed $item
      *
@@ -100,7 +101,6 @@ class ApiResponse extends AbstractResponse
         $object = new ResponseObject();
 
         foreach ($item ?: [] as $key => $value) {
-
             if ($key == 'attribute_data') {
                 $attributes = $this->getMappedAttributes($value);
                 foreach ($attributes as $attribute => $body) {
@@ -109,13 +109,13 @@ class ApiResponse extends AbstractResponse
                 continue;
             }
             if (is_array($value) || $value instanceof \Illuminate\Database\Eloquent\Collection) {
-                if (!empty($value['data'])) {
+                if (! empty($value['data'])) {
                     if (isset($value['data'][0])) {
                         $value = $this->mapCollection($value['data']);
                     } else {
                         $value = $this->mapItem($value['data']);
                     }
-                } elseif (isset($value[0]) || !count($value)) {
+                } elseif (isset($value[0]) || ! count($value)) {
                     $value = $this->mapCollection($value);
                 } elseif (isset($value['data']) && is_iterable($value['data'])) {
                     $value = $this->mapCollection($value['data']);
@@ -125,11 +125,12 @@ class ApiResponse extends AbstractResponse
             }
             $object->{$key} = $value;
         }
+
         return $object;
     }
 
     /**
-     * Gets mapped attrbutes based on locale/environment
+     * Gets mapped attrbutes based on locale/environment.
      *
      * @param array $attributes
      *
@@ -161,6 +162,6 @@ class ApiResponse extends AbstractResponse
 
     protected function isHtml($content)
     {
-        return preg_match("/<[^<]+>/", $content, $m) != 0;
+        return preg_match('/<[^<]+>/', $content, $m) != 0;
     }
 }

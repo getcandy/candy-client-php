@@ -3,7 +3,6 @@
 namespace GetCandy\Client\Jobs\Customers;
 
 use GetCandy\Client\AbstractJob;
-use GetCandy\Client\Request;
 
 class Create extends AbstractJob
 {

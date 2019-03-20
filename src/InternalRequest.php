@@ -2,11 +2,10 @@
 
 namespace GetCandy\Client;
 
-
-use \Illuminate\Http\Request;
+use Illuminate\Http\Request;
 
 /**
- * Class InternalRequest
+ * Class InternalRequest.
  *
  * @example To same URL
  *     $internal = new InternalRequest();
@@ -19,8 +18,6 @@ use \Illuminate\Http\Request;
  * @example To another URL with same variables
  *     $internal = new InternalRequest();
  *     $internal->setBaseRequest($request)->setUrl($request->getSchemeAndHttpHost() . '/test123')->make()->run()->getContent();
- *
- * @package App\Helpers
  */
 class InternalRequest
 {
@@ -28,18 +25,17 @@ class InternalRequest
     protected $new_request = null;
     protected $method = null;
     protected $url = null;
-    protected $parameters = array();
-    protected $cookies = array();
-    protected $files = array();
-    protected $server = array();
-    protected $headers = array();
+    protected $parameters = [];
+    protected $cookies = [];
+    protected $files = [];
+    protected $server = [];
+    protected $headers = [];
     protected $content = null;
     protected $type = null;
     protected $noContent = false;
 
-
     /**
-     * Internal request
+     * Internal request.
      *
      * @param \Illuminate\Http\Request|null $request
      * @param string|null $url
@@ -89,7 +85,7 @@ class InternalRequest
     }
 
     /**
-     * Generate request
+     * Generate request.
      *
      * @return \Symfony\Component\HttpFoundation\Request
      */
@@ -105,7 +101,7 @@ class InternalRequest
         $content = $this->getContent();
         $noContent = $this->noContent;
 
-        if (!$noContent && !$content && $this->isJson()) {
+        if (! $noContent && ! $content && $this->isJson()) {
             $content = json_encode($this->getParameters());
         }
 
@@ -116,11 +112,12 @@ class InternalRequest
         }
 
         $this->new_request = $req;
+
         return $this;
     }
 
     /**
-     * Process the new request through the (Laravel) app
+     * Process the new request through the (Laravel) app.
      *
      * @return \Symfony\Component\HttpFoundation\Response
      */
@@ -136,7 +133,7 @@ class InternalRequest
     }
 
     /**
-     * Get base request used for new request
+     * Get base request used for new request.
      *
      * @return \Illuminate\Http\Request $request
      */
@@ -146,14 +143,14 @@ class InternalRequest
     }
 
     /**
-     * Set base request used for new request
+     * Set base request used for new request.
      *
      * @param \Illuminate\Http\Request|null $request
      * @return $this
      */
     public function setBaseRequest($request = null)
     {
-        if (!$request) {
+        if (! $request) {
             $request = Request::createFromGlobals();
         }
         $this->base_request = $request;
@@ -197,7 +194,7 @@ class InternalRequest
     }
 
     /**
-     * Get request method
+     * Get request method.
      *
      * @return string
      */
@@ -207,7 +204,7 @@ class InternalRequest
     }
 
     /**
-     * Set request method
+     * Set request method.
      *
      * @param string $http_method
      * @return $this
@@ -220,7 +217,7 @@ class InternalRequest
     }
 
     /**
-     * Get request URL
+     * Get request URL.
      *
      * @return string
      */
@@ -230,7 +227,7 @@ class InternalRequest
     }
 
     /**
-     * Set request URL
+     * Set request URL.
      *
      * @param string $url
      * @return $this
@@ -243,7 +240,7 @@ class InternalRequest
     }
 
     /**
-     * Get request parameters
+     * Get request parameters.
      *
      * @return array
      */
@@ -253,7 +250,7 @@ class InternalRequest
     }
 
     /**
-     * Set request parameters
+     * Set request parameters.
      *
      * @param array $data
      * @return $this
@@ -266,7 +263,7 @@ class InternalRequest
     }
 
     /**
-     * Get request cookies
+     * Get request cookies.
      *
      * @return array
      */
@@ -276,7 +273,7 @@ class InternalRequest
     }
 
     /**
-     * Set request cookies
+     * Set request cookies.
      *
      * @param array $data
      * @return $this
@@ -289,7 +286,7 @@ class InternalRequest
     }
 
     /**
-     * Get request files
+     * Get request files.
      *
      * @return array
      */
@@ -299,7 +296,7 @@ class InternalRequest
     }
 
     /**
-     * Set request files
+     * Set request files.
      *
      * @param array $data
      * @return $this
@@ -312,7 +309,7 @@ class InternalRequest
     }
 
     /**
-     * Get request server variables
+     * Get request server variables.
      *
      * @return array
      */
@@ -322,7 +319,7 @@ class InternalRequest
     }
 
     /**
-     * Set request server variables
+     * Set request server variables.
      *
      * @param array $data
      * @return $this
@@ -335,7 +332,7 @@ class InternalRequest
     }
 
     /**
-     * Get request headers
+     * Get request headers.
      *
      * @return array
      */
@@ -345,7 +342,7 @@ class InternalRequest
     }
 
     /**
-     * Set request headers
+     * Set request headers.
      *
      * @param array $data
      * @return $this
@@ -364,7 +361,7 @@ class InternalRequest
     }
 
     /**
-     * Set a specific header
+     * Set a specific header.
      *
      * @param $key
      * @param $value
@@ -378,7 +375,7 @@ class InternalRequest
     }
 
     /**
-     * Get request content
+     * Get request content.
      *
      * @return string
      */
@@ -388,7 +385,7 @@ class InternalRequest
     }
 
     /**
-     * Set request content
+     * Set request content.
      *
      * @param string $content
      * @return $this
@@ -401,7 +398,7 @@ class InternalRequest
     }
 
     /**
-     * Set flag to leave request content null
+     * Set flag to leave request content null.
      *
      * A JSON request without content set will have a JSON of the parameters generated.
      * In this circumstance, this flag will force no content.
@@ -417,7 +414,7 @@ class InternalRequest
     }
 
     /**
-     * Get the request Content-Type
+     * Get the request Content-Type.
      *
      * @return string|null
      */
@@ -427,7 +424,7 @@ class InternalRequest
     }
 
     /**
-     * Check if JSON request
+     * Check if JSON request.
      *
      * This is set during $this->setHeaders()
      *

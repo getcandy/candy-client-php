@@ -2,8 +2,8 @@
 
 namespace GetCandy\Client\Auth;
 
-use GetCandy\Client\Facades\CandyClient;
 use Closure;
+use GetCandy\Client\Facades\CandyClient;
 
 class CandyTokenMiddleware
 {
@@ -19,6 +19,7 @@ class CandyTokenMiddleware
         if ($request->user()) {
             CandyClient::setToken($request->user()->getAuthIdentifier());
         }
+
         return $next($request);
     }
 }
