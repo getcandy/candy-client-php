@@ -2,8 +2,8 @@
 
 namespace GetCandy\Client\Facades;
 
-use Illuminate\Support\Facades\Facade;
 use GetCandy\Client\Testing\CandyClientFake;
+use Illuminate\Support\Facades\Facade;
 
 class CandyClient extends Facade
 {
@@ -19,6 +19,6 @@ class CandyClient extends Facade
      */
     protected static function getFacadeAccessor()
     {
-        return CandyClient::class;
+        return self::class;
     }
 }
