@@ -7,9 +7,9 @@ use GetCandy\Client\Testing\CandyClientFake;
 
 class CandyClient extends Facade
 {
-    public static function fake()
+    public static function fake($app = null)
     {
-        static::swap($fake = new CandyClientFake());
+        static::swap($fake = new CandyClientFake($app ?: app()->getInstance()));
         return $fake;
     }
     /**
