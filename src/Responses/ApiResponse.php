@@ -8,6 +8,21 @@ class ApiResponse extends AbstractResponse
 {
     protected $response;
 
+    protected $job;
+
+    public function __toString()
+    {
+        return json_encode($this->toArray());
+    }
+
+    public function toArray()
+    {
+        return [
+            'job' => $this->response->job,
+            $this->response->getData(),
+        ];
+    }
+
     public function __construct(CandyHttpResponse $response)
     {
         $this->response = $response;
