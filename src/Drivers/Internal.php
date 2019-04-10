@@ -25,16 +25,11 @@ class Internal extends AbstractDriver
             }
         }
 
-        $client = CandyClient::getClient();
-
         $responses = collect();
 
         foreach ($requests as $index => $request) {
-            $response = $this->parseResponse(
-                $request->make()->run()
-            );
             foreach ($this->jobs as $job) {
-                $job->addResult($index, $response);
+                $job->addResult($index, $this->parseResponse($job, $request->make()->run()));
                 if ($job->canRun()) {
                     $job->run();
                 }
@@ -48,14 +43,14 @@ class Internal extends AbstractDriver
      * @param mixed $response
      * @return CandyResponse
      */
-    protected function parseResponse($response)
+    protected function parseResponse($job, $response)
     {
         if ($response instanceof JsonResponse) {
             $data = $response->getData(true);
         } else {
             $data = json_decode($response->getContent(), true);
         }
-        $httpResponse = new CandyHttpResponse($response->getStatusCode());
+        $httpResponse = new CandyHttpResponse($job->getHandle(), $response->getStatusCode());
         $httpResponse->setData($data);
 
         if ($response->getStatusCode() >= 400) {
@@ -77,7 +72,6 @@ class Internal extends AbstractDriver
             CandyClient::getUrl($request->getEndPoint()),
             $request->getMethod()
         );
-
         return (new InternalRequest($http))
             ->setUrl(CandyClient::getUrl($request->getEndPoint()))
             ->setMethod($request->getMethod())

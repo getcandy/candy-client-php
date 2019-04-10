@@ -5,6 +5,7 @@ namespace GetCandy\Client;
 use Cache;
 use Closure;
 use GuzzleHttp\Client;
+use Psr\Log\LoggerInterface;
 use GuzzleHttp\Exception\ClientException;
 use GetCandy\Client\Responses\ApiResponse;
 use GetCandy\Client\Responses\CandyHttpResponse;
@@ -24,10 +25,12 @@ class Candy
     protected $client;
     protected $token = null;
     protected $driver;
+    protected $logger;
 
     public function __construct($app, $internal = false)
     {
         $manager = $app->make(CandyClientManager::class);
+        $this->logger = $app->make(LoggerInterface::class);
         if ($internal) {
             $this->driver = $manager->with('internal');
         } else {
@@ -123,6 +126,11 @@ class Candy
         return $this->clientId;
     }
 
+    public function setUrl($url)
+    {
+        $this->url = $url;
+    }
+
     public function __call($name, $arguments)
     {
         $this->callChain[] = ucfirst($name);
@@ -183,6 +191,17 @@ class Candy
         $this->driver->add($job);
         $this->driver->execute();
         $this->reset();
+
+        $response = $job->getRequest()->getResponse();
+        $status = $response->getStatus();
+
+        $level = 'info';
+
+        if ($status > 400) {
+            $level = 'error';
+        }
+
+        // $this->logger->log($level, $response->toArray());
 
         return $job->getRequest();
     }
@@ -288,7 +307,6 @@ class Candy
         if ($this->token) {
             return $this->token;
         }
-
         return $this->getClientToken();
     }
 
@@ -320,7 +338,7 @@ class Candy
             $fulfilled = false;
         }
 
-        $response = new CandyHttpResponse($status);
+        $response = new CandyHttpResponse('request-token', $status);
         $response->setData(['data' => json_decode($contents, true)]);
         $response->setFulfilled($fulfilled);
 

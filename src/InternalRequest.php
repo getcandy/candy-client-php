@@ -4,21 +4,6 @@ namespace GetCandy\Client;
 
 use Illuminate\Http\Request;
 
-/**
- * Class InternalRequest.
- *
- * @example To same URL
- *     $internal = new InternalRequest();
- *     $internal->setBaseRequest()->make()->run()->getContent();
- *
- * @example To same URL with same variables
- *     $internal = new InternalRequest();
- *     $internal->setBaseRequest($request)->make()->run()->getContent();
- *
- * @example To another URL with same variables
- *     $internal = new InternalRequest();
- *     $internal->setBaseRequest($request)->setUrl($request->getSchemeAndHttpHost() . '/test123')->make()->run()->getContent();
- */
 class InternalRequest
 {
     protected $base_request = null;
@@ -104,7 +89,6 @@ class InternalRequest
         if (! $noContent && ! $content && $this->isJson()) {
             $content = json_encode($this->getParameters());
         }
-
         $req = Request::create($url, $http_method, $parameters, $cookies, $files, $server, $content);
 
         if (count($headers)) {
@@ -123,13 +107,43 @@ class InternalRequest
      */
     public function run()
     {
-        // Laravel is going to override our request, so we need to set it up here
-        // so we can switch to it.
-        $current = app()->request;
-        $response = app()->getInstance()->handle($this->new_request);
-        app()->instance('request', $current);
+        $app = app()->getInstance();
+        $sessionDriver = config('session.driver');
+        $request = app('request');
+
+        /**
+         * When we make the internal request, Laravel changes the session values.
+         * We want to avoid this as the API call should be sessionless so we
+         * switch a null session manager so that no weird session changes take place.
+         */
+        $this->nullifySession($app);
+
+        // \Log::info($this->new_request->url());
+        // \Log::info($this->new_request->header('Authorization'));
+        // Send the request internally
+        $response = $app->handle($this->new_request);
+
+        // Bind our original HTTP request back as Laravel overrides it
+        $app->getInstance()->instance('request', $request);
+
+        // Set the session driver back to what it was originally.
+        $app->session->setDefaultDriver($sessionDriver);
 
         return $response;
+    }
+
+    /**
+     * Nullifies the session driver on the app
+     *
+     * @param Illuminate\Foundation\Application $app
+     * @return void
+     */
+    protected function nullifySession($app)
+    {
+        $app->session->extend('nullsession', function ($manager) {
+            return new \Illuminate\Session\NullSessionHandler;
+        });
+        $app->session->setDefaultDriver('nullsession');
     }
 
     /**

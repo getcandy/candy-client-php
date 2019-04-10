@@ -100,6 +100,11 @@ abstract class AbstractJob implements JobInterface
         // Add your code here
     }
 
+    public function getHandle()
+    {
+        return $this->handle;
+    }
+
     public function getReference()
     {
         return get_class($this);

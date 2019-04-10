@@ -62,7 +62,7 @@ class Guzzle extends AbstractDriver
         foreach ($promises as $index => $promise) {
             $response = $results[$index];
             foreach ($this->jobs as $job) {
-                $job->addResult($index, $this->parseResponse($response));
+                $job->addResult($index, $this->parseResponse($job, $response));
                 if ($job->canRun()) {
                     $job->run();
                 }
@@ -76,7 +76,7 @@ class Guzzle extends AbstractDriver
      * @param mixed $response
      * @return void
      */
-    protected function parseResponse($response)
+    protected function parseResponse($job, $response)
     {
         $psr = $response['value'] ?? $response;
 

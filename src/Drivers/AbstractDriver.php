@@ -28,6 +28,8 @@ abstract class AbstractDriver
         return [
             'Authorization' => 'Bearer '.CandyClient::getToken($force),
             'accept' => 'application/json',
+            'Content-Type' => 'application/json',
+            'X-CANDYAPI' => 'TRUE',
             'Accept-Language' => $this->app->getLocale(),
         ];
     }
