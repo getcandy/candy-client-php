@@ -4,6 +4,10 @@ namespace GetCandy\Client\Responses;
 
 class CandyHttpResponse
 {
+    public function __toString()
+    {
+        return json_encode($this->data);
+    }
     /**
      * The HTTP response code.
      *
@@ -26,15 +30,23 @@ class CandyHttpResponse
     protected $reason;
 
     /**
+     * The candy job
+     *
+     * @var string
+     */
+    public $job;
+
+    /**
      * Whether the request was fulfilled.
      *
      * @var bool
      */
     protected $fulfilled = true;
 
-    public function __construct($status = 200)
+    public function __construct($job, $status = 200)
     {
         $this->statusCode = $status;
+        $this->job = $job;
     }
 
     /**
