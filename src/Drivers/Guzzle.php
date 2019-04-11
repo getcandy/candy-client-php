@@ -47,7 +47,6 @@ class Guzzle extends AbstractDriver
                     $options['form_params'] = $request->getData();
                 }
             }
-
             $promises[(string) $request] = $client->requestAsync(
                 $request->getMethod(),
                 CandyClient::getUrl(
@@ -87,7 +86,8 @@ class Guzzle extends AbstractDriver
         }
 
         $data = json_decode($psr->getBody()->getContents(), true);
-        $httpResponse = new CandyHttpResponse($psr->getStatusCode());
+
+        $httpResponse = new CandyHttpResponse($job, $psr->getStatusCode());
         $httpResponse->setData($data);
         $httpResponse->setFulfilled($fulfilled);
 
