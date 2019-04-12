@@ -8,6 +8,7 @@ class CandyHttpResponse
     {
         return json_encode($this->data);
     }
+
     /**
      * The HTTP response code.
      *
@@ -30,7 +31,7 @@ class CandyHttpResponse
     protected $reason;
 
     /**
-     * The candy job
+     * The candy job.
      *
      * @var string
      */

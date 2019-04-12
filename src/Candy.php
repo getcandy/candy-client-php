@@ -3,7 +3,6 @@
 namespace GetCandy\Client;
 
 use Cache;
-use Closure;
 use GuzzleHttp\Client;
 use Psr\Log\LoggerInterface;
 use GuzzleHttp\Exception\ClientException;
@@ -292,6 +291,7 @@ class Candy
         if ($this->token) {
             return $this->token;
         }
+
         return $this->getClientToken();
     }
 
