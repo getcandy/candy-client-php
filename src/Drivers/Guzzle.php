@@ -28,10 +28,7 @@ class Guzzle extends AbstractDriver
 
         $promises = [];
 
-        $headers = [
-            'Authorization' => 'Bearer '.CandyClient::getToken($force),
-            'Accept' => 'application/json',
-        ];
+        $headers = $this->getDefaultHeaders();
 
         foreach ($requests as $request) {
             $options = [

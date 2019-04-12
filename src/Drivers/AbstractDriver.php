@@ -30,6 +30,7 @@ abstract class AbstractDriver
             'accept' => 'application/json',
             'Content-Type' => 'application/json',
             'X-CANDYAPI' => 'TRUE',
+            'X-CANDY-CHANNEL' => CandyClient::getChannel(),
             'Accept-Language' => $this->app->getLocale(),
         ];
     }
