@@ -41,6 +41,7 @@ class Guzzle extends AbstractDriver
                 if ($method == 'GET' || $method == 'PUT') {
                     $options['query'] = $request->getData();
                 } else {
+                    $options['headers']['Content-Type'] = 'application/x-www-form-urlencoded';
                     $options['form_params'] = $request->getData();
                 }
             }
