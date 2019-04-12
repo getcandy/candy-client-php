@@ -18,7 +18,7 @@ class GetCandyServiceProvider extends ServiceProvider
     public function boot()
     {
         $this->app->singleton(CandyClient::class, function ($app) {
-            return new Candy($app, config('getcandy.internal_requests', false));
+            return new Candy($app);
         });
 
         $this->app->bind(CandyClientManager::class, function ($app) {

@@ -4,7 +4,6 @@ namespace GetCandy\Client;
 
 use Illuminate\Support\Manager;
 use GetCandy\Client\Drivers\Guzzle;
-use GetCandy\Client\Drivers\Internal;
 
 class CandyClientManager extends Manager
 {
@@ -28,13 +27,6 @@ class CandyClientManager extends Manager
     {
         return $this->buildProvider(
             Guzzle::class
-        );
-    }
-
-    public function createInternalDriver()
-    {
-        return $this->buildProvider(
-            Internal::class
         );
     }
 

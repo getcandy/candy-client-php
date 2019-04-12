@@ -3,7 +3,6 @@
 namespace GetCandy\Client;
 
 use Cache;
-use Closure;
 use GuzzleHttp\Client;
 use Psr\Log\LoggerInterface;
 use GuzzleHttp\Exception\ClientException;
@@ -21,21 +20,18 @@ class Candy
     protected $clientId;
     protected $clientSecret;
     protected $channel = 'webstore';
+    protected $debug;
     protected $locale = 'en';
     protected $client;
     protected $token = null;
     protected $driver;
     protected $logger;
 
-    public function __construct($app, $internal = false)
+    public function __construct($app, $driver = 'guzzle')
     {
         $manager = $app->make(CandyClientManager::class);
         $this->logger = $app->make(LoggerInterface::class);
-        if ($internal) {
-            $this->driver = $manager->with('internal');
-        } else {
-            $this->driver = $manager->with('guzzle');
-        }
+        $this->driver = $manager->with($driver);
     }
 
     /**
@@ -67,8 +63,6 @@ class Candy
             ],
             'verify' => config('services.ecommerce_api.verify'),
         ]);
-
-        dd('hit');
     }
 
     public function getClient()
@@ -90,6 +84,7 @@ class Candy
         $this->clientId = $config['client_id'] ?? null;
         $this->locale = $config['locale'] ?? $this->locale;
         $this->channel = $config['channel'] ?? $this->channel;
+        $this->debug = $config['debug'] ?? false;
 
         $this->client = new Client([
             'base_uri' => $this->getUri(),
@@ -200,32 +195,16 @@ class Candy
         $response = $job->getRequest()->getResponse();
         $status = $response->getStatus();
 
-        $level = 'info';
-
         if ($status > 400) {
             $level = 'error';
         }
 
-        // $this->logger->log($level, $response->toArray());
-
-        return $job->getRequest();
-    }
-
-    public function batch(Closure $addJobs)
-    {
-        $batch = new \GetCandy\Client\InternalBatchRequestService();
-
-        $addJobs($batch);
-
-        $batch->execute();
-
-        $responses = [];
-
-        foreach ($batch->getJobs() as $key => $job) {
-            $responses[$key] = $job->getRequest()->getResponse();
+        if ($this->debug) {
+            // Helps to see actual response from API
+            $this->logger->log('debug', $response);
         }
 
-        return $responses;
+        return $job->getRequest();
     }
 
     public function reset()
@@ -312,6 +291,7 @@ class Candy
         if ($this->token) {
             return $this->token;
         }
+
         return $this->getClientToken();
     }
 
