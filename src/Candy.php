@@ -127,6 +127,11 @@ class Candy
         $this->url = $url;
     }
 
+    public function setChannel($channel)
+    {
+        $this->channel = $channel;
+    }
+
     public function __call($name, $arguments)
     {
         $this->callChain[] = ucfirst($name);
