@@ -15,6 +15,11 @@ class ApiResponse extends AbstractResponse
         return json_encode($this->toArray());
     }
 
+    public function getResponse()
+    {
+        return $this->response;
+    }
+
     public function toArray()
     {
         return [
@@ -114,7 +119,6 @@ class ApiResponse extends AbstractResponse
     protected function mapItem($item)
     {
         $object = new ResponseObject();
-
         foreach ($item ?: [] as $key => $value) {
             if ($key == 'attribute_data') {
                 $attributes = $this->getMappedAttributes($value);
