@@ -6,7 +6,7 @@ use GetCandy\Client\AbstractJob;
 
 class MakeDefault extends AbstractJob
 {
-    protected $endpoint = 'addresses/{id}/makeDefault';
+    protected $endpoint = 'addresses/{id}/default';
     protected $handle = 'make-default-address';
     protected $method = 'POST';
 }

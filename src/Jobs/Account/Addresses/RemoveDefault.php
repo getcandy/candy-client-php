@@ -6,7 +6,7 @@ use GetCandy\Client\AbstractJob;
 
 class RemoveDefault extends AbstractJob
 {
-    protected $endpoint = 'addresses/{id}/removeDefault';
+    protected $endpoint = 'addresses/{id}/default/remove';
     protected $handle = 'remove-default-address';
     protected $method = 'POST';
 }
