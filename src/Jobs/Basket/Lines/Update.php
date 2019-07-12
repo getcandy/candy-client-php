@@ -6,7 +6,7 @@ use GetCandy\Client\AbstractJob;
 
 class Update extends AbstractJob
 {
-    protected $endpoint = 'baskets/lines/{id}';
+    protected $endpoint = 'basket-lines/{id}';
     protected $handle = 'update-basket-lines';
     protected $method = 'PUT';
     protected $idField = 'basket_line_id';

@@ -6,7 +6,7 @@ use GetCandy\Client\AbstractJob;
 
 class Delete extends AbstractJob
 {
-    protected $endpoint = 'baskets/lines';
+    protected $endpoint = 'basket-lines';
     protected $handle = 'delete-basket-line';
     protected $method = 'DELETE';
 }

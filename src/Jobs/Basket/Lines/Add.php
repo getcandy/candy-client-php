@@ -6,7 +6,7 @@ use GetCandy\Client\AbstractJob;
 
 class Add extends AbstractJob
 {
-    protected $endpoint = 'baskets/lines/{id}/add';
+    protected $endpoint = 'basket-lines/{id}/add';
     protected $handle = 'basket-line-add-quantity';
     protected $method = 'POST';
     protected $idField = 'basket_line_id';
