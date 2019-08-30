@@ -8,10 +8,16 @@ abstract class AbstractResponse
     protected $status = 200;
     protected $failed = false;
     protected $meta = [];
+    protected $links = [];
 
     public function getBody()
     {
         return $this->body;
+    }
+
+    public function getLinks()
+    {
+        return $this->links;
     }
 
     public function getStatus()
