@@ -26,6 +26,7 @@ class Candy
     protected $token = null;
     protected $driver;
     protected $logger;
+    protected $currency;
 
     public function __construct($app, $driver = 'guzzle')
     {
@@ -85,7 +86,7 @@ class Candy
         $this->locale = $config['locale'] ?? $this->locale;
         $this->channel = $config['channel'] ?? $this->channel;
         $this->debug = $config['debug'] ?? false;
-
+        $this->currency = $config['currency'] ?? null;
         $this->client = new Client([
             'base_uri' => $this->getUri(),
         ]);
@@ -104,6 +105,11 @@ class Candy
     public function getChannel()
     {
         return $this->channel;
+    }
+
+    public function getCurrency()
+    {
+        return $this->currency;
     }
 
     public function getLocale()
