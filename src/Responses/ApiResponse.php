@@ -60,6 +60,7 @@ class ApiResponse extends AbstractResponse
         $contents = $this->response->getData();
         $this->meta = $this->normalize($contents['meta'] ?? []);
         $this->body = $this->normalize($contents['data'] ?? []);
+        $this->links = $this->normalize($contents['links'] ?? []);
         $this->status = $this->response->getStatusCode();
     }
 
@@ -161,7 +162,6 @@ class ApiResponse extends AbstractResponse
 
         $channel = CandyClient::getChannel();
         $locale = CandyClient::getLocale();
-
         foreach ($attributes as $key => $attribute) {
             if (empty($attribute[$channel])) {
                 $val = array_first($attribute);
