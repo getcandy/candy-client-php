@@ -132,6 +132,12 @@ class Candy
         $this->url = $url;
     }
 
+    public function setLocale($locale)
+    {
+        $this->locale = $locale;
+        return $this;
+    }
+
     public function setChannel($channel)
     {
         $this->channel = $channel;
