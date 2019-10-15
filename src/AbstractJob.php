@@ -42,6 +42,16 @@ abstract class AbstractJob implements JobInterface
             unset($this->params['id']);
         }
 
+        // Next we need to replace any segments with our params.
+        foreach ($this->params as $param => $value) {
+            if (is_array($value)) {
+                continue;
+            }
+            if (strpos($this->endpoint, "{{$param}}") !== false) {
+                $this->endpoint = str_replace("{{$param}}",$value, $this->endpoint);
+                unset($this->params[$param]);
+            }
+        }
         $request = new Request($this->endpoint, $method, $this->params);
 
         if (! empty($this->decorator)) {
