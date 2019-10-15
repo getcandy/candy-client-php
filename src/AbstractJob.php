@@ -6,7 +6,7 @@ abstract class AbstractJob implements JobInterface
 {
     protected $method = 'GET';
     protected $requests = [];
-    protected $params;
+    protected $params = [];
 
     public function __construct($params)
     {
@@ -43,7 +43,7 @@ abstract class AbstractJob implements JobInterface
         }
 
         // Next we need to replace any segments with our params.
-        foreach ($this->params as $param => $value) {
+        foreach ($this->params ?? [] as $param => $value) {
             if (is_array($value)) {
                 continue;
             }
